@@ -698,14 +698,14 @@
         let priceChart, bbmChart, weatherChart, inflationChart, harvestChart, correlationChart;
         let today = new Date();
         
+        // --- PERBAIKAN DI SINI ---
         document.addEventListener('DOMContentLoaded', () => {
-            lucide.createIcons();
-            
             // --- INITIALIZATION ---
             setupNavigation();
-            initializeDashboard();
+            initializeDashboard(); // Jalankan inisialisasi dashboard DULU
             
             // --- EVENT LISTENERS ---
+            // Pasang semua event listener
             document.getElementById('commodity-select').addEventListener('change', updateDashboard);
             document.getElementById('region-select').addEventListener('change', updateDashboard);
             document.getElementById('currentDateInput').addEventListener('change', updateDashboard);
@@ -717,8 +717,10 @@
                 }
             });
             
-            // Correlation listeners are set up when page is activated
+            // Panggil lucide.createIcons() SETELAH semuanya siap
+            lucide.createIcons(); 
         });
+        // --- AKHIR PERBAIKAN ---
 
         // --- PAGE NAVIGATION ---
         function setupNavigation() {
@@ -759,8 +761,9 @@
         // Simulasi data berdasarkan tanggal
         function getSimulatedData(baseCommodityData, selectedDateStr) {
             const baseData = JSON.parse(JSON.stringify(baseCommodityData)); // Deep copy
+            const refDate = new Date(today.toISOString().split('T')[0]); // Tanggal referensi (hari ini)
             const selectedDate = new Date(selectedDateStr + 'T00:00:00'); // Set ke awal hari
-            const dateDiff = Math.round((selectedDate - today) / (1000 * 60 * 60 * 24));
+            const dateDiff = Math.round((selectedDate - refDate) / (1000 * 60 * 60 * 24));
 
             if (dateDiff === 0) {
                 return baseData; // Kembalikan data asli jika tanggalnya hari ini
@@ -770,12 +773,17 @@
             const priceChange = dateDiff * (baseData.chartBase * 0.001); // Perubahan kecil per hari
             const predictionChange = dateDiff * (baseData.chartBase * 0.001);
 
-            baseData.overview.lastPrice = Math.max(0, baseData.overview.lastPrice + priceChange);
-            baseData.overview.prediction = Math.max(0, baseData.overview.prediction + predictionChange);
+            baseData.overview.lastPrice = Math.max(10000, baseData.overview.lastPrice + priceChange + (Math.random() - 0.5) * 100);
+            baseData.overview.prediction = Math.max(10000, baseData.overview.prediction + predictionChange + (Math.random() - 0.5) * 100);
             
             // Buat perubahan harian palsu
             baseData.overview.change = (Math.random() - 0.5) * (baseData.overview.lastPrice * 0.02);
             baseData.overview.changePercent = (baseData.overview.change / baseData.overview.lastPrice * 100).toFixed(2);
+            
+            // Simulasikan outlook
+            baseData.outlook.week += dateDiff * 0.05;
+            baseData.outlook.month += dateDiff * 0.1;
+
 
             return baseData;
         }
@@ -792,7 +800,7 @@
                 date.setDate(date.getDate() - i);
                 labels.push(date);
                 lastValue += (Math.random() - 0.5) * (base * 0.02); // Variasi data historis
-                data.push(lastValue);
+                data.push(Math.max(10000, lastValue)); // pastikan tidak negatif
             }
             // Selected date's price
             labels.push(selectedDate);
@@ -828,7 +836,7 @@
                     interaction: { intersect: false, mode: 'index' },
                 }
             });
-            updateDashboard();
+            updateDashboard(); // Panggil update pertama kali
         }
 
         function updateDashboard() {
@@ -921,17 +929,22 @@
                 };
 
                 const createOutlookCell = (value) => {
-                    const isUp = value > 0;
-                    const isNeutral = value === 0;
-                    let color = isUp ? 'text-green-600' : 'text-red-600';
-                    let icon = isUp ? 'arrow-up-right' : 'arrow-down-right';
+                    const val = parseFloat(value.toFixed(2));
+                    const isUp = val > 0.05;
+                    const isDown = val < -0.05;
                     
-                    if (isNeutral) {
-                        color = 'text-slate-500';
-                        icon = 'minus';
+                    let color = 'text-slate-500';
+                    let icon = 'minus';
+                    
+                    if (isUp) {
+                        color = 'text-green-600';
+                        icon = 'arrow-up-right';
+                    } else if (isDown) {
+                        color = 'text-red-600';
+                        icon = 'arrow-down-right';
                     }
 
-                    return `<div class="flex items-center ${color}"><i data-lucide="${icon}" class="w-4 h-4 mr-1"></i> ${value}%</div>`;
+                    return `<div class="flex items-center ${color}"><i data-lucide="${icon}" class="w-4 h-4 mr-1"></i> ${val}%</div>`;
                 };
 
                 row.appendChild(createCell(commodity.name, 'p-4 font-semibold'));
@@ -1001,7 +1014,7 @@
                 buyCard.classList.remove('opacity-50');
                 buyIcon.className = 'p-3 bg-red-100 text-red-600 rounded-full mr-4';
                 buyTitle.className = 'text-xl font-bold text-red-600';
-                buyDesc.innerHTML = `Prediksi kami menunjukkan harga <strong>${commodityName}</strong> akan <strong>naik (${outlookMonth > 2.5 ? outlookMonth + '% dlm 1 bln' : outlookWeek + '% dlm 1 mgg'})</strong>. Membeli sekarang dapat menjadi langkah antisipasi.`;
+                buyDesc.innerHTML = `Prediksi kami menunjukkan harga <strong>${commodityName}</strong> akan <strong>naik (${outlookMonth > 2.5 ? outlookMonth.toFixed(1) + '% dlm 1 bln' : outlookWeek.toFixed(1) + '% dlm 1 mgg'})</strong>. Membeli sekarang dapat menjadi langkah antisipasi.`;
                 
                 holdDesc.innerHTML = `Harga <strong>${commodityName}</strong> diprediksi akan mengalami kenaikan.`;
 
@@ -1010,7 +1023,7 @@
                 holdCard.classList.remove('opacity-50');
                 holdIcon.className = 'p-3 bg-green-100 text-green-600 rounded-full mr-4';
                 holdTitle.className = 'text-xl font-bold text-green-600';
-                holdDesc.innerHTML = `Harga <strong>${commodityName}</strong> berpotensi <strong>turun (${outlookMonth < -3.0 ? outlookMonth + '% dlm 1 bln' : outlookWeek + '% dlm 1 mgg'})</strong>. Sebaiknya tahan pembelian atau jual stok jika ada.`;
+                holdDesc.innerHTML = `Harga <strong>${commodityName}</strong> berpotensi <strong>turun (${outlookMonth < -3.0 ? outlookMonth.toFixed(1) + '% dlm 1 bln' : outlookWeek.toFixed(1) + '% dlm 1 mgg'})</strong>. Sebaiknya tahan pembelian atau jual stok jika ada.`;
 
                 buyDesc.innerHTML = `Harga <strong>${commodityName}</strong> diprediksi akan mengalami penurunan.`;
             
