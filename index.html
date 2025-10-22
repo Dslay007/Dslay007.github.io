@@ -1,1419 +1,1416 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aplikasi SiPanganCerdas</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/date-fns/1.30.1/date_fns.min.js"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f8fafc;
-        }
-        .chart-container {
-            position: relative;
-            height: 400px;
-            width: 100%;
-        }
-        .small-chart-container {
-            position: relative;
-            height: 150px;
-            width: 100%;
-        }
-        .tooltip {
-            position: relative;
-            display: inline-block;
-        }
-        .tooltip .tooltiptext {
-            visibility: hidden;
-            width: 280px;
-            background-color: #334155;
-            color: #fff;
-            text-align: left;
-            border-radius: 6px;
-            padding: 10px;
-            position: absolute;
-            z-index: 1;
-            bottom: 125%;
-            left: 50%;
-            margin-left: -140px;
-            opacity: 0;
-            transition: opacity 0.3s;
-            font-size: 0.8rem;
-            line-height: 1.4;
-        }
-        .tooltip:hover .tooltiptext {
-            visibility: visible;
-            opacity: 1;
-        }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aplikasi SiPanganCerdas</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/date-fns/1.30.1/date_fns.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+        .chart-container {
+            position: relative;
+            height: 400px;
+            width: 100%;
+        }
+        .small-chart-container {
+            position: relative;
+            height: 150px;
+            width: 100%;
+        }
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 280px;
+            background-color: #334155;
+            color: #fff;
+            text-align: left;
+            border-radius: 6px;
+            padding: 10px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -140px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.8rem;
+            line-height: 1.4;
+        }
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
 
-        /* --- Visual Hierarchy & Highlighting Styles --- */
-        /* Primary Action (Active states, main buttons) */
-        .btn-primary, .nav-link.active, .time-range-btn.active {
-            background-color: #4f46e5; /* indigo-600 */
-            color: #ffffff;
-            font-weight: 600;
-        }
-        .nav-link.active {
-            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-        }
-        .nav-link.active i {
-            color: #ffffff;
-        }
+        /* --- Visual Hierarchy & Highlighting Styles --- */
+        /* Primary Action (Active states, main buttons) */
+        .btn-primary, .nav-link.active, .time-range-btn.active {
+            background-color: #4f46e5; /* indigo-600 */
+            color: #ffffff;
+            font-weight: 600;
+        }
+        .nav-link.active {
+            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+        }
+        .nav-link.active i {
+            color: #ffffff;
+        }
 
-        /* Secondary Action (Dropdowns, interactive but not primary) */
-        .select-secondary, input[type="date"] {
-            appearance: none;
-            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
-            background-position: right 0.5rem center;
-            background-repeat: no-repeat;
-            background-size: 1.5em 1.5em;
-            padding-right: 2.5rem;
-            border-color: #cbd5e1; /* slate-300 */
-            transition: border-color 0.2s, box-shadow 0.2s;
-        }
-        input[type="date"] {
-            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3crect x='3' y='4' width='18' height='18' rx='2' ry='2'%3e%3c/rect%3e%3cline x1='16' y1='2' x2='16' y2='6'%3e%3c/line%3e%3cline x1='8' y1='2' x2='8' y2='6'%3e%3c/line%3e%3cline x1='3' y1='10' x2='21' y2='10'%3e%3c/line%3e%3c/svg%3e");
-            background-position: right 0.6rem center;
-            background-size: 1.2em 1.2em;
-        }
-        input[type="date"]::-webkit-calendar-picker-indicator {
-            opacity: 0;
-        }
-        .select-secondary:hover, input[type="date"]:hover {
-            border-color: #94a3b8; /* slate-400 */
-        }
-        .select-secondary:focus, input[type="date"]:focus {
-            outline: 2px solid transparent;
-            outline-offset: 2px;
-            border-color: #6366f1; /* indigo-500 */
-            box-shadow: 0 0 0 2px #c7d2fe; /* indigo-200 */
-        }
+        /* Secondary Action (Dropdowns, interactive but not primary) */
+        .select-secondary, input[type="date"] {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 0.5rem center;
+            background-repeat: no-repeat;
+            background-size: 1.5em 1.5em;
+            padding-right: 2.5rem;
+            border-color: #cbd5e1; /* slate-300 */
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        input[type="date"] {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3crect x='3' y='4' width='18' height='18' rx='2' ry='2'%3e%3c/rect%3e%3cline x1='16' y1='2' x2='16' y2='6'%3e%3c/line%3e%3cline x1='8' y1='2' x2='8' y2='6'%3e%3c/line%3e%3cline x1='3' y1='10' x2='21' y2='10'%3e%3c/line%3e%3c/svg%3e");
+            background-position: right 0.6rem center;
+            background-size: 1.2em 1.2em;
+        }
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            opacity: 0;
+        }
+        .select-secondary:hover, input[type="date"]:hover {
+            border-color: #94a3b8; /* slate-400 */
+        }
+        .select-secondary:focus, input[type="date"]:focus {
+            outline: 2px solid transparent;
+            outline-offset: 2px;
+            border-color: #6366f1; /* indigo-500 */
+            box-shadow: 0 0 0 2px #c7d2fe; /* indigo-200 */
+        }
 
-        /* Tertiary / Static Info (Non-interactive elements that look like controls) */
-        .info-tertiary {
-            background-color: #f1f5f9; /* slate-100 */
-            border: 1px solid #e2e8f0; /* slate-200 */
-            color: #475569; /* slate-600 */
-        }
+        /* Tertiary / Static Info (Non-interactive elements that look like controls) */
+        .info-tertiary {
+            background-color: #f1f5f9; /* slate-100 */
+            border: 1px solid #e2e8f0; /* slate-200 */
+            color: #475569; /* slate-600 */
+        }
 
-        /* Hover states for non-active buttons */
-        .time-range-btn:not(.active):hover {
-            background-color: #e2e8f0; /* slate-200 */
-        }
-        .nav-link:not(.active):hover {
-            background-color: #f1f5f9; /* slate-100 */
-        }
-        /* --- End Highlighting --- */
+        /* Hover states for non-active buttons */
+        .time-range-btn:not(.active):hover {
+            background-color: #e2e8f0; /* slate-200 */
+        }
+        .nav-link:not(.active):hover {
+            background-color: #f1f5f9; /* slate-100 */
+        }
+        /* --- End Highlighting --- */
 
-        .page {
-            display: none;
-        }
-        .page.active {
-            display: block;
-        }
-    </style>
+        .page {
+            display: none;
+        }
+        .page.active {
+            display: block;
+        }
+    </style>
 </head>
 <body class="text-slate-800">
 
-    <div id="login-page" class="hidden flex items-center justify-center h-screen bg-slate-100">
-        </div>
-
-
-    <div id="app-container">
-        <div class="flex h-screen">
-            <aside class="w-64 bg-white border-r border-slate-200 flex-shrink-0 flex flex-col fixed md:static h-screen z-30 transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out">
-                <div>
-                    <div class="p-6 hidden md:flex items-center space-x-3">
-                        <div class="bg-indigo-600 text-white p-2 rounded-lg">
-                            <i data-lucide="line-chart"></i>
-                        </div>
-                        <h1 class="text-xl font-bold text-indigo-600">SiPanganCerdas</h1>
-                    </div>
-                    <nav id="sidebar-nav" class="mt-6 px-4">
-                        <a href="#dashboard" class="nav-link flex items-center px-4 py-2 text-slate-700 rounded-lg font-semibold active">
-                            <i data-lucide="layout-dashboard" class="w-5 h-5 mr-3 text-slate-500"></i>
-                            Dasbor Harga
-                        </a>
-                        <a href="#correlation" class="nav-link flex items-center px-4 py-2 mt-2 text-slate-600 rounded-lg">
-                            <i data-lucide="bar-chart-3" class="w-5 h-5 mr-3 text-slate-500"></i>
-                            Analisis Korelasi
-                        </a>
-                        <a href="#factors" class="nav-link flex items-center px-4 py-2 mt-2 text-slate-600 rounded-lg">
-                            <i data-lucide="cloud-sun" class="w-5 h-5 mr-3 text-slate-500"></i>
-                            Faktor Eksternal
-                        </a>
-                         <a href="#news" class="nav-link flex items-center px-4 py-2 mt-2 text-slate-600 rounded-lg">
-                            <i data-lucide="newspaper" class="w-5 h-5 mr-3 text-slate-500"></i>
-                            Berita Pangan
-                        </a>
-                        <a href="#about" class="nav-link flex items-center px-4 py-2 mt-2 text-slate-600 rounded-lg">
-                            <i data-lucide="info" class="w-5 h-5 mr-3 text-slate-500"></i>
-                            Tentang Aplikasi
-                        </a>
-                    </nav>
-                </div>
-                <div class="mt-auto p-4">
-                     <a href="#" id="logout-btn" class="flex items-center px-4 py-2 mt-2 text-slate-600 hover:bg-red-50 hover:text-red-600 rounded-lg">
-                        <i data-lucide="log-out" class="w-5 h-5 mr-3"></i>
-                        Keluar
-                    </a>
-                </div>
-            </aside>
-            <div id="sidebar-backdrop" class="fixed inset-0 bg-black bg-opacity-50 z-20 hidden md:hidden"></div>
-            <div class="flex-1 overflow-y-auto">
-
-                <div class="md:hidden p-4 bg-white border-b border-slate-200 flex justify-between items-center sticky top-0 z-10">
-                    <div class="flex items-center space-x-3">
-                        <div class="bg-indigo-600 text-white p-2 rounded-lg">
-                            <i data-lucide="line-chart"></i>
-                        </div>
-                        <h1 class="text-xl font-bold text-indigo-600">SiPanganCerdas</h1>
-                    </div>
-                    <button id="mobile-menu-btn" class="p-2 rounded-lg hover:bg-slate-100">
-                        <i data-lucide="menu" class="w-6 h-6"></i>
-                    </button>
-                </div>
-                <main id="page-dashboard" class="page active p-8">
-                    <header class="flex flex-col md:flex-row justify-between items-center mb-8">
-                        <div>
-                            <h2 class="text-3xl font-bold">Dasbor Harga Bahan Pokok</h2>
-                            <p id="location-subtitle" class="text-slate-500 mt-1">Analisis dan Prediksi Harga Nasional</p>
-                        </div>
-                        <div class="flex items-center space-x-4 mt-4 md:mt-0">
-                            <div class="relative">
-                                <select id="region-select" class="select-secondary w-48 p-2 pl-3 border rounded-lg bg-white transition">
-                                    <option value="nasional">Nasional</option>
-                                    <option value="jatim">Jawa Timur</option>
-                                    <option value="dki">DKI Jakarta</option>
-                                    <option value="jabar">Jawa Barat</option>
-                                </select>
-                            </div>
-                            <div>
-                                <input type="date" id="currentDateInput" class="select-secondary w-48 p-2 pl-3 border rounded-lg bg-white transition">
-                            </div>
-                        </div>
-                    </header>
-
-                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm mb-8">
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-center">
-                            <div class="lg:col-span-1">
-                                <label for="commodity-select" class="text-sm font-medium text-slate-600">Pilih Komoditas</label>
-                                <div class="mt-1 relative">
-                                    <select id="commodity-select" class="select-secondary w-full pl-4 py-2.5 border rounded-lg bg-white transition">
-                                        <option value="beras">Beras Premium</option>
-                                        <option value="minyak">Minyak Goreng Curah</option>
-                                        <option value="gula">Gula Pasir</option>
-                                        <option value="cabai">Cabai Rawit Merah</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div id="overview-last-price" class="flex items-center space-x-4 p-4 bg-slate-50 rounded-lg">
-                                <div class="p-3 bg-blue-100 text-blue-600 rounded-full">
-                                    <i data-lucide="tag"></i>
-                                </div>
-                      _         <div>
-                                    <p class="text-sm text-slate-500">Harga Hari Ini (/kg)</p>
-                                    <p class="text-2xl font-bold text-slate-800">Rp 15.200</p>
-                                </div>
-                            </div>
-                             <div id="overview-price-change" class="flex items-center space-x-4 p-4 bg-slate-50 rounded-lg">
-                                <div class="p-3 bg-red-100 text-red-600 rounded-full">
-                                    <i data-lucide="trending-down"></i>
-                                </div>
-                                <div>
-                                    <p class="text-sm text-slate-500">Perubahan (24 Jam)</p>
-                                    <p class="text-2xl font-bold text-red-600 flex items-center">- Rp 150 <span class="text-base font-medium ml-2">(-1.05%)</span></p>
-                                </div>
-                            </div>
-                             <div id="overview-prediction" class="flex items-center space-x-4 p-4 bg-slate-50 rounded-lg">
-                                <div class="p-3 bg-green-100 text-green-600 rounded-full">
-                                   <i data-lucide="arrow-up-right"></i>
-                                </div>
-                                <div>
-                                    <p class="text-sm text-slate-500">Prediksi Besok</p>
-                                    <p class="text-2xl font-bold text-green-600">Rp 15.250</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                        <div class="lg:col-span-2 bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-                            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4">
-                                <h3 id="chart-title" class="text-lg font-bold mb-3 sm:mb-0">Grafik Harga dan Prediksi (Beras Premium)</h3>
-                                <div id="time-range-selector" class="flex space-x-1 bg-slate-100 p-1 rounded-lg">
-                                    <button data-range="30" class="time-range-btn px-3 py-1 text-sm rounded-md active">1 Bulan</button>
-                                    <button data-range="90" class="time-range-btn px-3 py-1 text-sm text-slate-500 rounded-md">3 Bulan</button>
-                                    <button data-range="365" class="time-range-btn px-3 py-1 text-sm text-slate-500 rounded-md">1 Tahun</button>
-                                </div>
-                            </div>
-                            <div class="chart-container">
-                                <canvas id="priceChart"></canvas>
-                            </div>
-                        </div>
-
-                        <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-                            <h3 class="text-lg font-bold mb-4">Faktor Pengaruh Utama</h3>
-                            <div id="factors-summary-container" class="space-y-4">
-                                </div>
-                        </div>
-                    </div>
-
-                    <div class="mt-8 bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-                         <h3 class="text-lg font-bold mb-4">Rekomendasi Strategis</h3>
-                         <div id="recommendation-container">
-                            </div>
-                    </div>
-
-                    <div class="mt-8 bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-                         <h3 class="text-lg font-bold mb-4">Tabel Outlook Harga (Semua Komoditas)</h3>
-                         <div class="overflow-x-auto">
-                            <table class="w-full text-left">
-                                <thead class="bg-slate-50 text-sm text-slate-600">
-                                    <tr>
-                                        <th class="p-4 font-semibold rounded-l-lg">Komoditas</th>
-                                        <th class="p-4 font-semibold">Harga Saat Ini (/kg)</th>
-                                        <th class="p-4 font-semibold">Outlook 1 Minggu</th>
-                                        <th class="p-4 font-semibold">Outlook 1 Bulan</th>
-                                        <th class="p-4 font-semibold">Outlook 3 Bulan</th>
-                                        <th class="p-4 font-semibold text-center rounded-r-lg">Rekomendasi</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="outlook-table-body"></tbody>
-                            </table>
-                        </div>
-                    </div>
-                </main>
-
-                <main id="page-correlation" class="page p-8">
-                    <header class="mb-8">
-                        <h2 class="text-3xl font-bold">Analisis Korelasi</h2>
-                        <p class="text-slate-500 mt-1">Memahami Hubungan Antar Variabel yang Mempengaruhi Harga</p>
-                    </header>
-
-                    <div class="space-y-8">
-
-                        <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-                            <h3 class="text-lg font-bold mb-4">Visualisasi Korelasi (Scatter Plot)</h3>
-                            <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 mb-4">
-                                <div class="flex-1">
-                                    <label class="text-sm font-medium">Variabel X</label>
-                                    <select id="corr-var-x" class="select-secondary w-full mt-1 p-2 border rounded-lg bg-white">
-                                        </select>
-                                </div>
-                                 <div class="flex-1">
-                                    <label class="text-sm font-medium">Variabel Y</label>
-                                    <select id="corr-var-y" class="select-secondary w-full mt-1 p-2 border rounded-lg bg-white">
-                                        </select>
-                                </div>
-                            </div>
-                            <div class="chart-container">
-                                <canvas id="correlationChart"></canvas>
-                            </div>
-                        </div>
-
-                        <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-                            <h3 class="text-lg font-bold mb-4">Matriks Korelasi</h3>
-                            <p class="text-sm text-slate-500 mb-4">
-                                Menunjukkan kekuatan hubungan antar variabel. Nilai mendekati 1 (hijau) atau -1 (merah) menunjukkan korelasi kuat. Nilai mendekati 0 (putih) menunjukkan korelasi lemah.
-                            </p>
-                            <div class="overflow-x-auto">
-                                <table id="correlation-matrix-table" class="w-full text-center text-sm border-collapse">
-                                    <thead>
-                                        </thead>
-                                    <tbody>
-                                        </tbody>
-                                </table>
-                            </div>
-                            <div class="mt-4 p-4 bg-blue-50 border-l-4 border-blue-500 text-blue-800 space-y-2">
-                                <h4 class="font-bold">Bagaimana Cara Membacanya?</h4>
-                                <ul class="list-disc list-inside text-sm space-y-1">
-                                    <li>
-                                        <strong class="text-green-700">Korelasi Positif (e.g., 0.82):</strong> Jika satu variabel naik, variabel lainnya cenderung ikut naik. Contohnya, <strong>Harga BBM</strong> yang naik (biaya logistik) seringkali diikuti oleh kenaikan <strong>Harga Beras</strong>.
-                                    </li>
-                                    <li>
-                                        <strong class="text-red-700">Korelasi Negatif (e.g., -0.75):</strong> Jika satu variabel naik, variabel lainnya cenderung turun. Contohnya, saat <strong>Stok Beras</strong> tinggi (pasokan melimpah), <strong>Harga Beras</strong> cenderung turun.
-                                    </li>
-                                </ul>
-                            </div>
-                  _     </div>
-                    </div>
-                </main>
-
-                 <main id="page-factors" class="page p-8">
-                    <header class="flex flex-col md:flex-row justify-between items-center mb-8">
-                        <div>
-                _             <h2 class="text-3xl font-bold">Detail Faktor Eksternal</h2>
-                            <p id="factors-subtitle" class="text-slate-500 mt-1">Memonitor semua variabel kunci yang mempengaruhi stabilitas pangan</p>
-                        </div>
-                        <div class="mt-4 md:mt-0">
-                            <label for="factors-commodity-select" class="text-sm font-medium text-slate-600">Filter berdasarkan Komoditas</label>
-                            <select id="factors-commodity-select" class="select-secondary w-full md:w-64 mt-1 p-2 border rounded-lg bg-white">
-                                <option value="semua" selected>Semua Komoditas</option>
-                                <option value="beras">Beras Premium</option>
-                                <option value="minyak">Minyak Goreng Curah</option>
-                                <option value="gula">Gula Pasir</option>
-                                <option value="cabai">Cabai Rawit Merah</option>
-                            </select>
-                        </div>
-                    </header>
-                    <div id="factors-grid-container" class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        </div>
-                </main>
-
-                <main id="page-news" class="page p-8">
-                    <header class="mb-8">
-                        <h2 class="text-3xl font-bold">Berita Pangan dan Ekonomi</h2>
-                        <p class="text-slate-500 mt-1">Kumpulan berita terbaru seputar sektor pangan dan logistik.</p>
-              _   </header>
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-
-                        <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
-                            <img src="https://picsum.photos/seed/beras/600/300" alt="Ilustrasi beras" class="w-full h-48 object-cover">
-                            <div class="p-6 flex flex-col flex-1">
-                                <span class="text-sm font-semibold text-indigo-600 mb-2">KOMODITAS BERAS</span>
-                                <h3 class="text-xl font-bold mb-3">Pemerintah Pastikan Stok Beras Aman Menjelang Akhir Tahun</h3>
-                                <p class="text-slate-600 text-sm mb-4 flex-1">Kementerian Pertanian dan Bulog mengkonfirmasi bahwa stok Cadangan Beras Pemerintah (CBP) berada di level 1.5 Juta ton, cukup untuk mengantisipasi kebutuhan hingga 3 bulan ke depan.</p>
-                                <a href="#" class="font-semibold text-indigo-600 hover:text-indigo-800 flex items-center">
-                                    Baca Selengkapnya <i data-lucide="arrow-right" class="w-4 h-4 ml-1"></i>
-                                </a>
-                            </div>
-                        </div>
-
-                        <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
-                            <img src="https://picsum.photos/seed/logistik/600/300" alt="Ilustrasi logistik" class="w-full h-48 object-cover">
-                            <div class="p-6 flex flex-col flex-1">
-                                <span class="text-sm font-semibold text-orange-600 mb-2">LOGISTIK & BBM</span>
-                                <h3 class="text-xl font-bold mb-3">Kenaikan Harga BBM Nonsubsidi Pengaruhi Biaya Logistik Pangan</h3>
-                                <p class="text-slate-600 text-sm mb-4 flex-1">Asosiasi logistik menyebutkan adanya penyesuaian tarif angkutan barang sekitar 5-10% menyusul kenaikan harga BBM industri, yang berpotensi berdampak pada harga eceran di pasar.</p>
-                                <a href="#" class="font-semibold text-indigo-600 hover:text-indigo-800 flex items-center">
-                                    Baca Selengkapnya <i data-lucide="arrow-right" class="w-4 h-4 ml-1"></i>
-                                </a>
-                            </div>
-                        </div>
-
-                        <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
-                            <img src="https://picsum.photos/seed/cabai/600/300" alt="Ilustrasi cabai" class="w-full h-48 object-cover">
-                            <div class="p-6 flex flex-col flex-1">
-                                <span class="text-sm font-semibold text-red-600 mb-2">HORTIKULTURA</span>
-                                <h3 class="text-xl font-bold mb-3">Musim Hujan Datang, Petani Cabai Diimbau Waspada Patek</h3>
-                                <p class="text-slate-600 text-sm mb-4 flex-1">Curah hujan tinggi dapat memicu serangan jamur antraknosa (patek) pada tanaman cabai. Harga cabai rawit diperkirakan akan sangat fluktuatif dalam beberapa minggu ke depan.</p>
-                                <a href="#" class="font-semibold text-indigo-600 hover:text-indigo-800 flex items-center">
-                                    Baca Selengkapnya <i data-lucide="arrow-right" class="w-4 h-4 ml-1"></i>
-                                </a>
-              _           </div>
-                        </div>
-
-                        <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
-                            <img src="https://picsum.photos/seed/ekonomi/600/300" alt="Ilustrasi ekonomi" class="w-full h-48 object-cover">
-                            <div class="p-6 flex flex-col flex-1">
-                                <span class="text-sm font-semibold text-violet-600 mb-2">EKONOMI MAKRO</span>
-                                <h3 class="text-xl font-bold mb-3">Bank Indonesia Menahan Suku Bunga Acuan di Level 6.25%</h3>
-                                <p class="text-slate-600 text-sm mb-4 flex-1">Keputusan ini diambil untuk menjaga stabilitas nilai tukar Rupiah di tengah ketidakpastian global. Inflasi bahan pangan (volatile food) menjadi salah satu fokus utama BI.</p>
-e                             <a href="#" class="font-semibold text-indigo-600 hover:text-indigo-800 flex items-center">
-                                    Baca Selengkapnya <i data-lucide="arrow-right" class="w-4 h-4 ml-1"></i>
-                                </a>
-                            </div>
-                        </div>
-
-                        <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
-                            <img src="https://picsum.photos/seed/minyak/600/300" alt="Ilustrasi minyak sawit" class="w-full h-48 object-cover">
-                            <div class="p-6 flex flex-col flex-1">
-                                <span class="text-sm font-semibold text-yellow-600 mb-2">MINYAK SAWIT (CPO)</span>
-                                <h3 class="text-xl font-bold mb-3">Harga CPO Global Berfluktuasi, Harga Minyak Goreng Domestik Stabil</h3>
-                                <p class="text-slate-600 text-sm mb-4 flex-1">Meskipun harga CPO di pasar global naik tipis, kebijakan DMO (Domestic Market Obligation) berhasil menjaga harga minyak goreng curah dan kemasan di dalam negeri tetap terkendali.</p>
-                                <a href="#" class="font-semibold text-indigo-600 hover:text-indigo-800 flex items-center">
-                                    Baca Selengkapnya <i data-lucide="arrow-right" class="w-4 h-4 ml-1"></i>
-A                             </a>
-                            </div>
-                        </div>
-
-                        <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
-                            <img src="https://picsum.photos/seed/gula/600/300" alt="Ilustrasi gula" class="w-full h-48 object-cover">
-                            <div class="p-6 flex flex-col flex-1">
-                                <span class="text-sm font-semibold text-cyan-600 mb-2">KOMODITAS GULA</span>
-                                <h3 class="text-xl font-bold mb-3">Musim Giling Tebu 2025 Lampaui Target Awal</h3>
-                                <p class="text-slate-600 text-sm mb-4 flex-1">Produksi gula kristal putih (GKP) tahun ini mencatatkan hasil positif didukung cuaca yang kondusif. Hal ini diharapkan dapat menjaga harga gula pasir di level yang wajar.</p>
-                                <a href="#" class="font-semibold text-indigo-600 hover:text-indigo-800 flex items-center">
-                                    Baca Selengkapnya <i data-lucide="arrow-right" class="w-4 h-4 ml-1"></i>
-                                </a>
-                            </div>
-                        </div>
-
-                    </div>
-                </main>
-
-                <main id="page-about" class="page p-8 space-y-8">
-                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-                        <h2 class="text-2xl font-bold mb-4">SiPanganCerdas</h2>
-                        <p class="text-slate-600 leading-relaxed">
-                            SiPanganCerdas adalah sebuah platform web inovatif yang dirancang untuk menyediakan analisis dan prediksi harga bahan pokok secara akurat di tingkat nasional. Aplikasi ini bertujuan untuk menjadi pusat data dan informasi tepercaya bagi para pemangku kepentingan dalam memantau dinamika harga pangan di Indonesia.
-                        </p>
-                        <p class="text-slate-600 leading-relaxed mt-4">
-                            Visi kami adalah untuk mendukung stabilitas dan ketahanan pangan nasional melalui penyediaan data yang transparan, real-time, dan mudah diakses.
-                        </p>
-                    </div>
-
-                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-                        <h2 class="text-2xl font-bold mb-6">Fitur Utama Kami</h2>
-                        <div class="space-y-6">
-                            <div class="flex items-start">
-                                <div class="flex-shrink-0 bg-indigo-100 text-indigo-600 p-3 rounded-lg">
-                                    <i data-lucide="layout-dashboard" class="w-6 h-6"></i>
-                                </div>
-                                <div class="ml-4">
-                                    <h3 class="text-lg font-semibold">Dasbor Harga Interaktif</h3>
-                                    <p class="text-slate-600 mt-1">Pantau harga terkini dari berbagai komoditas bahan pokok, lihat perubahan harga harian, dan analisis tren historis melalui grafik yang mudah dibaca.</p>
-e                           </div>
-                            </div>
-                            <div class="flex items-start">
-                                <div class="flex-shrink-0 bg-indigo-100 text-indigo-600 p-3 rounded-lg">
-                                    <i data-lucide="line-chart" class="w-6 h-6"></i>
-                                </div>
-                                <div class="ml-4">
-                                    <h3 class="text-lg font-semibold">Prediksi Harga Cerdas</h3>
-                                    <p class="text-slate-600 mt-1">Dapatkan prediksi harga untuk hari berikutnya yang diolah menggunakan model analisis data canggih, membantu Anda dalam mengambil keputusan strategis.</p>
-                                </div>
-                            </div>
-                            <div class="flex items-start">
-                                <div class="flex-shrink-0 bg-indigo-100 text-indigo-600 p-3 rounded-lg">
-t                               <i data-lucide="bar-chart-3" class="w-6 h-6"></i>
-                                </div>
-                                <div class="ml-4">
-                                    <h3 class="text-lg font-semibold">Analisis Korelasi</h3>
-                                    <p class="text-slate-600 mt-1">Pahami bagaimana harga satu komoditas dapat berhubungan atau dipengaruhi oleh komoditas lainnya dan faktor eksternal.</p>
-                                </div>
-                            </div>
-                            <div class="flex items-start">
-                                <div class="flex-shrink-0 bg-indigo-100 text-indigo-600 p-3 rounded-lg">
-                                    <i data-lucide="cloud-sun" class="w-6 h-6"></i>
-                                </div>
-                                <div class="ml-4">
-                                    <h3 class="text-lg font-semibold">Pemantauan Faktor Eksternal</h3>
-                                    <p class="text-slate-600 mt-1">Kami mengintegrasikan data-data eksternal (seperti cuaca, kebijakan, dan tren pasar) yang berpotensi mempengaruhi fluktuasi harga.</p>
-                                </div>
-                            </div>
-                            <div class="flex items-start">
-                                <div class="flex-shrink-0 bg-indigo-100 text-indigo-600 p-3 rounded-lg">
-section                               <i data-lucide="newspaper" class="w-6 h-6"></i>
-                                </div>
-                                <div class="ml-4">
-                                    <h3 class="text-lg font-semibold">Pusat Berita Pangan</h3>
-                                    <p class="text-slate-600 mt-1">Tetap terinformasi dengan kumpulan berita terbaru seputar sektor pangan yang relevan dengan pergerakan harga.</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-A                     <h2 class="text-2xl font-bold mb-4">Model Prediksi Kami</h2>
-                        <p class="text-slate-600 leading-relaxed">
-                  _         Fitur prediksi harga di <strong>SiPanganCerdas</strong> didukung oleh model machine learning canggih yang telah dilatih menggunakan data historis harga pangan dari berbagai sumber tepercaya.
-                        </p>
-                        <p class="text-slate-600 leading-relaxed mt-4">
-                            Model kami secara kontinu menganalisis pola dan tren pasar, serta memperhitungkan berbagai faktor eksternal untuk menghasilkan prediksi dengan tingkat akurasi yang tinggi. Kami berkomitmen untuk terus meningkatkan dan menyempurnakan model ini demi memberikan wawasan yang paling andal bagi Anda.
-A                     </p>
-                    </div>
-
-                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-                        <h2 class="text-2xl font-bold mb-4">Untuk Siapa Aplikasi Ini?</h2>
-                        <p class="text-slate-600 leading-relaxed">
-                            <strong>SiPanganCerdas</strong> ditujukan bagi para pembuat kebijakan, analis ekonomi, pelaku industri pangan, peneliti, serta masyarakat umum yang peduli dan ingin memahami dinamika harga bahan pokok di Indonesia.
-                        </p>
-                        <p class="text-slate-600 leading-relaxed mt-4">
-                            Dengan SiPanganCerdas, kami berharap dapat memberikan kontribusi positif dalam menciptakan ekosistem pangan yang lebih stabil dan transparan.
-GA                   </p>
-                    </div>
-                </main>
-                </div>
-            </div>
-    </div>
-
-    <script>
-    // --- REALISTIC MOCK DATA (Refactored) ---
-
-    // Global data for external factors
-    const FACTORS_DATA = {
-        bbm: {
-            name: "Harga BBM",
-            subtitle: "Pertalite/Liter",
-            value: 10000,
-            unit: "Rp",
-            chartBase: 10000,
-            color: '#f97316',
-            icon: 'fuel',
-            trend: 0.0003, // Slight upward trend
-            volatility: 0.02,
-            desc: "Harga BBM mempengaruhi biaya logistik dan distribusi pangan. Kenaikan harga BBM hampir selalu diikuti kenaikan harga komoditas."
-        },
-        weather: {
-            name: "Cuaca",
-            subtitle: "Curah Hujan Rata-rata",
-            value: 175,
-            unit: "mm/bln",
-            chartBase: 150,
-            color: '#06b6d4',
-            icon: 'cloud-rain',
-            trend: 0,
-            volatility: 0.8,
-            desc: "Curah hujan yang optimal mendukung panen. Kekeringan atau banjir (curah hujan ekstrem) dapat menyebabkan gagal panen dan menaikkan harga."
-        },
-        inflation: {
-            name: "Inflasi (YoY)",
-            subtitle: "Tingkat Nasional",
-            value: 2.84,
-            unit: "%",
-            chartBase: 2.8,
-            color: '#8b5cf6',
-            icon: 'trending-up',
-            trend: 0,
-            volatility: 0.1,
-            desc: "Inflasi umum menunjukkan daya beli masyarakat. Inflasi yang tinggi dapat menekan daya beli dan mendorong kenaikan harga secara umum."
-        },
-        stock_beras: {
-            name: "Stok Pangan (Beras)",
-            subtitle: "Stok Bulog Nasional",
-            value: 1.2,
-            unit: "Juta Ton",
-            chartBase: 1.2,
-            color: '#84cc16',
-            icon: 'warehouse',
-            trend: 0,
-            volatility: 0.3,
-            desc: "Jumlah stok cadangan beras nasional. Stok yang menipis di bawah 1 Juta Ton dapat memicu spekulasi dan kenaikan harga."
-        },
-        stock_minyak: {
-            name: "Harga CPO",
-            subtitle: "Pasar Global (MYR/Ton)",
-            value: 3950,
-            unit: "MYR",
-            chartBase: 3900,
-            color: '#eab308',
-            icon: 'droplets',
-            trend: 0.0001,
-            volatility: 0.15,
-            desc: "Harga minyak sawit mentah (CPO) global sangat mempengaruhi harga minyak goreng domestik, meskipun ada kebijakan DMO."
-        },
-        stock_gula: {
-            name: "Stok Pangan (Gula)",
-            subtitle: "Stok GKP Nasional",
-            value: 0.8,
-            unit: "Juta Ton",
-            chartBase: 0.8,
-            color: '#a855f7',
-            icon: 'cookie',
-            trend: 0,
-            volatility: 0.2,
-            desc: "Stok gula kristal putih (GKP) nasional. Ketergantungan pada impor gula mentah membuat harga rentan terhadap kurs dan harga global."
-        },
-        stock_cabai: {
-            name: "Produksi Cabai",
-            subtitle: "Estimasi Panen Bulanan",
-            value: 45,
-            unit: "Ribu Ton",
-            chartBase: 45,
-            color: '#ef4444',
-            icon: 'sprout',
-            trend: 0,
-            volatility: 1.2, // Very volatile
-            desc: "Produksi cabai sangat sensitif terhadap cuaca. Sedikit gangguan panen dapat menyebabkan lonjakan harga yang ekstrem."
-        }
-    };
-
-    // Base data for commodities, with VOLATILITY and TREND
-    const MOCK_DATA = {
-        nasional: {
-            name: "Nasional",
-            beras: { name: "Beras Premium", chartBase: 15100, volatility: 0.05, trend: 0.0001, outlook: { week: 0.5, month: 1.5, threeMonth: 2.5 }, factorKeys: ['stock_beras', 'bbm', 'weather', 'inflation'] },
-            minyak: { name: "Minyak Goreng Curah", chartBase: 15700, volatility: 0.15, trend: 0.0002, outlook: { week: 0.8, month: 2.0, threeMonth: 3.0 }, factorKeys: ['stock_minyak', 'bbm', 'inflation', 'weather'] },
-            gula: { name: "Gula Pasir", chartBase: 18450, volatility: 0.10, trend: 0.0001, outlook: { week: 0.2, month: 0.5, threeMonth: 1.0 }, factorKeys: ['stock_gula', 'bbm', 'inflation', 'weather'] },
-            cabai: { name: "Cabai Rawit Merah", chartBase: 56000, volatility: 0.45, trend: 0.0000, outlook: { week: -5.0, month: -10.0, threeMonth: 20.0 }, factorKeys: ['stock_cabai', 'weather', 'bbm', 'inflation'] }
-        },
-        jatim: {
-            name: "Jawa Timur",
-            beras: { name: "Beras Premium", chartBase: 14750, volatility: 0.04, trend: 0.0001, outlook: { week: 0.3, month: 1.2, threeMonth: 2.0 }, factorKeys: ['stock_beras', 'bbm', 'weather', 'inflation'] },
-            minyak: { name: "Minyak Goreng Curah", chartBase: 15400, volatility: 0.14, trend: 0.0002, outlook: { week: 0.7, month: 1.8, threeMonth: 2.8 }, factorKeys: ['stock_minyak', 'bbm', 'inflation', 'weather'] },
-            gula: { name: "Gula Pasir", chartBase: 18150, volatility: 0.09, trend: 0.0001, outlook: { week: 0.1, month: 0.4, threeMonth: 0.8 }, factorKeys: ['stock_gula', 'bbm', 'inflation', 'weather'] },
-            cabai: { name: "Cabai Rawit Merah", chartBase: 54000, volatility: 0.50, trend: 0.0000, outlook: { week: -6.0, month: -12.0, threeMonth: 18.0 }, factorKeys: ['stock_cabai', 'weather', 'bbm', 'inflation'] }
-        },
-        dki: {
-            name: "DKI Jakarta",
-            beras: { name: "Beras Premium", chartBase: 15400, volatility: 0.06, trend: 0.0002, outlook: { week: 0.8, month: 2.0, threeMonth: 3.0 }, factorKeys: ['stock_beras', 'bbm', 'weather', 'inflation'] },
-            minyak: { name: "Minyak Goreng Curah", chartBase: 15850, volatility: 0.16, trend: 0.0003, outlook: { week: 1.0, month: 2.5, threeMonth: 3.5 }, factorKeys: ['stock_minyak', 'bbm', 'inflation', 'weather'] },
-            gula: { name: "Gula Pasir", chartBase: 18700, volatility: 0.11, trend: 0.0002, outlook: { week: 0.3, month: 0.8, threeMonth: 1.5 }, factorKeys: ['stock_gula', 'bbm', 'inflation', 'weather'] },
-            cabai: { name: "Cabai Rawit Merah", chartBase: 61000, volatility: 0.40, trend: 0.0001, outlook: { week: -4.0, month: -8.0, threeMonth: 22.0 }, factorKeys: ['stock_cabai', 'weather', 'bbm', 'inflation'] }
-        },
-        jabar: {
-            name: "Jawa Barat",
-            beras: { name: "Beras Premium", chartBase: 15000, volatility: 0.05, trend: 0.0001, outlook: { week: 0.4, month: 1.3, threeMonth: 2.2 }, factorKeys: ['stock_beras', 'bbm', 'weather', 'inflation'] },
-            minyak: { name: "Minyak Goreng Curah", chartBase: 15600, volatility: 0.15, trend: 0.0002, outlook: { week: 0.7, month: 1.9, threeMonth: 2.9 }, factorKeys: ['stock_minyak', 'bbm', 'inflation', 'weather'] },
-            gula: { name: "Gula Pasir", chartBase: 18300, volatility: 0.10, trend: 0.0001, outlook: { week: 0.2, month: 0.6, threeMonth: 1.2 }, factorKeys: ['stock_gula', 'bbm', 'inflation', 'weather'] },
-            cabai: { name: "Cabai Rawit Merah", chartBase: 55500, volatility: 0.48, trend: 0.0000, outlook: { week: -5.5, month: -11.0, threeMonth: 19.0 }, factorKeys: ['stock_cabai', 'weather', 'bbm', 'inflation'] }
-        }
-    };
-
-    // Correlation data and metadata
-    const CORRELATION_VARS = {
-        harga_beras: { name: "Harga Beras", data: Array.from({length: 50}, () => 14800 + Math.random() * 1000) },
-        harga_minyak: { name: "Harga Minyak", data: Array.from({length: 50}, () => 15500 + Math.random() * 1000) },
-        harga_gula: { name: "Harga Gula", data: Array.from({length: 50}, () => 18000 + Math.random() * 1000) },
-        harga_cabai: { name: "Harga Cabai", data: Array.from({length: 50}, () => 50000 + Math.random() * 20000) },
-        harga_bbm: { name: "Harga BBM", data: Array.from({length: 50}, () => 9800 + Math.random() * 500) },
-        inflasi: { name: "Inflasi", data: Array.from({length: 50}, () => 2.5 + Math.random() * 1.5) },
-        curah_hujan: { name: "Curah Hujan", data: Array.from({length: 50}, () => 100 + Math.random() * 150) },
-        stok_beras: { name: "Stok Beras", data: Array.from({length: 50}, () => 1.0 + Math.random() * 0.8) }
-    };
-    // Pre-calculated correlation matrix
-    const CORRELATION_MATRIX = {
-        harga_beras: { harga_beras: 1.00, harga_minyak: 0.45, harga_gula: 0.30, harga_cabai: 0.15, harga_bbm: 0.82, inflasi: 0.68, curah_hujan: -0.45, stok_beras: -0.75 },
-        harga_minyak: { harga_beras: 0.45, harga_minyak: 1.00, harga_gula: 0.55, harga_cabai: 0.20, harga_bbm: 0.75, inflasi: 0.60, curah_hujan: -0.10, stok_beras: -0.30 },
-        harga_gula: { harga_beras: 0.30, harga_minyak: 0.55, harga_gula: 1.00, harga_cabai: 0.10, harga_bbm: 0.65, inflasi: 0.50, curah_hujan: -0.05, stok_beras: -0.20 },
-        harga_cabai: { harga_beras: 0.15, harga_minyak: 0.20, harga_gula: 0.10, harga_cabai: 1.00, harga_bbm: 0.25, inflasi: 0.15, curah_hujan: -0.65, stok_beras: -0.10 },
-        harga_bbm: { harga_beras: 0.82, harga_minyak: 0.75, harga_gula: 0.65, harga_cabai: 0.25, harga_bbm: 1.00, inflasi: 0.55, curah_hujan: -0.15, stok_beras: -0.50 },
-        inflasi: { harga_beras: 0.68, harga_minyak: 0.60, harga_gula: 0.50, harga_cabai: 0.15, harga_bbm: 0.55, inflasi: 1.00, curah_hujan: -0.05, stok_beras: -0.40 },
-        curah_hujan: { harga_beras: -0.45, harga_minyak: -0.10, harga_gula: -0.05, harga_cabai: -0.65, harga_bbm: -0.15, inflasi: -0.05, curah_hujan: 1.00, stok_beras: 0.35 },
-        stok_beras: { harga_beras: -0.75, harga_minyak: -0.30, harga_gula: -0.20, harga_cabai: -0.10, harga_bbm: -0.50, inflasi: -0.40, curah_hujan: 0.35, stok_beras: 1.00 }
-    };
-
-
-    // --- GLOBAL VARIABLES & STATE ---
-    let priceChart, correlationChart;
-    let factorCharts = {}; // Object to hold dynamic factor charts
-    let currentRegion = 'nasional';
-    let currentCommodity = 'beras';
-    let currentTimeRange = 30;
-    let currentDate = new Date(); // This will be the REAL today on load
-    let currentFactorFilter = 'semua'; // State baru untuk filter halaman faktor
-
-    // --- UTILITY FUNCTIONS ---
-    const formatCurrency = (value) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(value);
-    const formatNumber = (value, digits = 2) => new Intl.NumberFormat('id-ID', { minimumFractionDigits: digits, maximumFractionDigits: digits }).format(value);
-
-    // simple deterministic PRNG for seeded random numbers
-    function seededRandom(seed) {
-        let s = seed % 2147483647;
-        if (s <= 0) s += 2147483646;
-        return () => {
-            s = s * 16807 % 2147483647;
-            return (s - 1) / 2147483646;
-        };
-    }
-
-    // Generate time series data with trend and seeded randomness
-    const generateTimeSeriesData = (days, base, volatility, trend = 0, seed = 1) => {
-        const data = [];
-        let value = base;
-        const rand = seededRandom(seed);
-        for (let i = 0; i < days; i++) {
-            const d = new Date(currentDate);
-            d.setDate(d.getDate() - (days - 1 - i));
-
-            let change = (rand() - 0.5) * (base * volatility); // Fluktuasi harian
-            value += change + (base * trend); // Ditambah tren harian
-
-            if (value < base * 0.2) value = base * 0.2 + (rand() * 100);
-
-            data.push({ x: d, y: value });
-        }
-        return data;
-    };
-
-    // Dynamically generate overview data based on date
-    const generateDynamicData = (commodityKey, regionKey, date) => {
-        const commodity = MOCK_DATA[regionKey][commodityKey];
-        if (!commodity) return {};
-
-        const seed = date.getDate() + date.getMonth() * 31 + commodityKey.charCodeAt(0) + regionKey.charCodeAt(0);
-        const rand = seededRandom(seed);
-        const randYesterday = seededRandom(seed - 1); // Seed for yesterday's price
-
-        const basePrice = commodity.chartBase;
-
-        // Buat harga hari ini dan kemarin berdasarkan data historis
-        const todayData = generateTimeSeriesData(1, basePrice, commodity.volatility, commodity.trend, seed);
-        const todayPrice = todayData[0].y;
-
-        // Perlu seed kemarin untuk harga kemarin
-        const yesterdayData = generateTimeSeriesData(1, basePrice, commodity.volatility, commodity.trend, seed - 1);
-        const yesterdayPrice = yesterdayData[0].y;
-
-        const change = todayPrice - yesterdayPrice;
-        const changePercent = (change / yesterdayPrice) * 100;
-
-        // Prediksi dipengaruhi oleh outlook mingguan
-        const outlookBias = (commodity.outlook.week / 100) * (basePrice * 0.2); // Bias dari outlook
-        const randomJitter = (rand() - 0.5) * (basePrice * 0.02); // Jitter acak
-        const prediction = todayPrice + outlookBias + randomJitter;
-
-       return {
-            lastPrice: Math.round(todayPrice / 50) * 50, // Round to nearest 50
-            change: change, // Keep original change value
-            changePercent: changePercent,
-            prediction: Math.round(prediction / 50) * 50
-        };
-    };
-
-    // --- PAGE ROUTING & LOGIN LOGIC ---
-    document.addEventListener('DOMContentLoaded', () => {
-        const loginPage = document.getElementById('login-page');
-        const appContainer = document.getElementById('app-container');
-        const logoutBtn = document.getElementById('logout-btn');
-
-        loginPage.classList.add('hidden');
-        appContainer.classList.remove('hidden');
-
-        logoutBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            appContainer.classList.add('hidden');
-            loginPage.classList.remove('hidden');
-        });
-
-        currentDate = new Date();
-
-        initializeApp();
-    });
-
-
-    function initializeApp() {
-        const sidebarNav = document.getElementById('sidebar-nav');
-        const pages = document.querySelectorAll('.page');
-
-        // --- RESPONSIVE CODE ---
-        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-        const sidebar = document.querySelector('aside');
-        const backdrop = document.getElementById('sidebar-backdrop');
-
-        const toggleSidebar = () => {
-            sidebar.classList.toggle('-translate-x-full'); // Memunculkan/menyembunyikan sidebar
-            backdrop.classList.toggle('hidden'); // Memunculkan/menyembunyikan backdrop
-        };
-
-        mobileMenuBtn.addEventListener('click', toggleSidebar);
-        backdrop.addEventListener('click', toggleSidebar);
-        // --- END RESPONSIVE CODE ---
-
-        sidebarNav.addEventListener('click', (e) => {
-            const navLink = e.target.closest('.nav-link');
-            if (!navLink || navLink.id === 'logout-btn') return;
-            e.preventDefault();
-
-            sidebarNav.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
-            navLink.classList.add('active');
-
-            const targetPageId = navLink.getAttribute('href').substring(1);
-            pages.forEach(page => {
-                page.classList.toggle('active', page.id === `page-${targetPageId}`);
-            });
-
-            // Re-render dynamic pages on navigation
-            if (targetPageId === 'factors') {
-                renderFactorsPage();
-            }
-            if (targetPageId === 'correlation') {
-                if (!correlationChart) {
-                    initCorrelationPage();
-      _           }
-            }
-
-            // Close sidebar on mobile after navigation
-            if (window.innerWidth < 768) { // 768px is 'md' breakpoint
-                toggleSidebar();
-            }
-        });
-
-        // --- FACTORS PAGE DROPDOWN LISTENER ---
-        const factorCommoditySelect = document.getElementById('factors-commodity-select');
-        factorCommoditySelect.addEventListener('change', (e) => {
-            currentFactorFilter = e.target.value;
-            // Render ulang halaman faktor HANYA jika sedang aktif
-            if (document.getElementById('page-factors').classList.contains('active')) {
-                renderFactorsPage();
-            }
-        });
-        // --- END FACTORS PAGE LISTENER ---
-
-        // --- DASHBOARD PAGE LOGIC ---
-        function initDashboardPage() {
-            const regionSelect = document.getElementById('region-select');
-            const commoditySelect = document.getElementById('commodity-select');
-            const timeRangeSelector = document.getElementById('time-range-selector');
-            const dateInput = document.getElementById('currentDateInput');
-
-            dateInput.valueAsDate = currentDate;
-
-            dateInput.addEventListener('change', (e) => {
-                currentDate = new Date(e.target.value);
-                updateDashboard();
-            });
-
-            const generateAggregatedData = (days, basePrice, commodity, seed) => {
-                const dailyData = generateTimeSeriesData(days, basePrice, commodity.volatility, commodity.trend, seed);
-
-                let groupedData = {};
-                let getKey;
-                let timeUnit;
-
-                if (days <= 90) { // Group by week
-                    timeUnit = 'week';
-                    getKey = (d) => dateFns.format(dateFns.startOfWeek(d), 'YYYY-[W]WW');
-          _     } else { // Group by month
-                    timeUnit = 'month';
-                    getKey = (d) => dateFns.format(d, 'YYYY-MM');
-                }
-
-                dailyData.forEach(d => {
-                    const key = getKey(d.x);
-                    if (!groupedData[key]) groupedData[key] = [];
-                    groupedData[key].push(d);
-                });
-
-                const aggregatedPoints = [];
-                for (const key in groupedData) {
-                    const group = groupedData[key];
-                    if (group.length === 0) continue;
-
-                    const avgPrice = group.reduce((sum, p) => sum + p.y, 0) / group.length;
-                    const midDate = group[Math.floor(group.length / 2)].x;
-
-                    aggregatedPoints.push({ x: midDate, y: avgPrice });
-                }
-                return { points: aggregatedPoints.sort((a,b) => a.x - b.x), unit: timeUnit };
-            }
-
-            const generateChartData = (days, basePrice, commodity) => {
-                const seed = currentDate.getDate() + currentDate.getMonth() * 31 + commodity.name.charCodeAt(0) + regionSelect.value.charCodeAt(0);
-                let historicalPoints, unit;
-
-                if (days <= 30) {
-                    unit = 'day';
-                    historicalPoints = generateTimeSeriesData(days, basePrice, commodity.volatility, commodity.trend, seed).map(p => ({ x: p.x, y: p.y }));
-                } else {
-                    const agg = generateAggregatedData(days, basePrice, commodity, seed);
-                    historicalPoints = agg.points;
-                    unit = agg.unit;
-                }
-
-                const labels = historicalPoints.map(p => p.x);
-                const historicalData = historicalPoints.map(p => p.y);
-
-                const historicalDataPointsCount = Math.max(labels.length - 2, Math.floor(labels.length * 0.95));
-                const finalHistoricalData = historicalData.slice(0, historicalDataPointsCount);
-                const lastHistoricalPoint = finalHistoricalData.length > 0 ? finalHistoricalData[finalHistoricalData.length-1] : basePrice;
-
-                const forecastData = Array(finalHistoricalData.length - 1).fill(null);
-                forecastData.push(lastHistoricalPoint);
-
-                const forecastSteps = labels.length - finalHistoricalData.length;
-                let lastForecastPrice = lastHistoricalPoint;
-                const rand = seededRandom(seed + 1);
-
-                const outlookBias = (commodity.outlook.week / 100) * (basePrice * 0.05) / 7; // Weekly bias per day
-
-      section         for(let i=0; i < forecastSteps; i++) {
-                    let randomJitter = (rand() - 0.5) * (basePrice * commodity.volatility * 0.2);
-                    lastForecastPrice += outlookBias + randomJitter;
-                    forecastData.push(lastForecastPrice);
-                }
-
-                return { labels, historicalData: finalHistoricalData, forecastData, unit };
-            };
-
-            const updateOverview = (data) => {
-                const { lastPrice, /* change, changePercent, */ prediction } = data; // Original calculated values might still be needed
-
-                document.querySelector('#overview-last-price p:last-child').textContent = formatCurrency(lastPrice);
-
-                // --- Sinkronisasi Prediksi --- (Tetap sama)
-                const predContainer = document.getElementById('overview-prediction');
-                const predIconDiv = predContainer.querySelector('.p-3');
-                const predText = predContainer.querySelector('p:last-child');
-                predText.textContent = formatCurrency(prediction);
-
-                let predIconName, predDivClasses, predTextClasses;
-                if (prediction > lastPrice + 10) {
-                    predIconName = 'arrow-up-right';
-                    predDivClasses = 'p-3 bg-green-100 text-green-600 rounded-full';
-                    predTextClasses = 'text-2xl font-bold text-green-600';
-                } else if (prediction < lastPrice - 10) {
-                    predIconName = 'arrow-down-right';
-                    predDivClasses = 'p-3 bg-red-100 text-red-600 rounded-full';
-                    predTextClasses = 'text-2xl font-bold text-red-600';
-                } else {
-  s                 predIconName = 'minus';
-                    predDivClasses = 'p-3 bg-slate-100 text-slate-600 rounded-full';
-                    predTextClasses = 'text-2xl font-bold text-slate-800';
-                }
-                predIconDiv.className = predDivClasses;
-                predIconDiv.innerHTML = `<i data-lucide="${predIconName}"></i>`;
-                predText.className = predTextClasses;
-                // --- Akhir Sinkronisasi Prediksi ---
-
-
-                // ========== MODIFIKASI PERUBAHAN 24 JAM (MANUAL) ==========
-                const changeContainer = document.getElementById('overview-price-change');
-                const changeIconDiv = changeContainer.querySelector('.p-3');
-                const changeText = changeContainer.querySelector('p:last-child');
-
-                // ** Atur Nilai Manual Di Sini **
-                const manualChangeValue = -150; // Contoh: Turun 150 Rupiah
-                const manualChangePercent = -1.05; // Contoh: Turun 1.05%
-
-                // Tampilkan nilai manual
-                changeText.innerHTML = `${formatCurrency(manualChangeValue)} <span class="text-base font-medium ml-2">(${manualChangePercent.toFixed(2)}%)</span>`;
-
-                // Atur warna dan ikon berdasarkan nilai manual
-                let iconName, divClasses, textClasses;
-                if (manualChangeValue > 0) { // Jika naik (manual)
-                    iconName = 'trending-up';
-                    divClasses = 'p-3 bg-green-100 text-green-600 rounded-full';
-                    textClasses = 'text-2xl font-bold text-green-600 flex items-center';
-                } else if (manualChangeValue < 0) { // Jika turun (manual)
-                    iconName = 'trending-down';
-                    divClasses = 'p-3 bg-red-100 text-red-600 rounded-full';
-                    textClasses = 'text-2xl font-bold text-red-600 flex items-center';
-                } else { // Jika 0 (manual atau dibulatkan)
-                    iconName = 'minus';
-                    divClasses = 'p-3 bg-slate-100 text-slate-600 rounded-full';
-                    textClasses = 'text-2xl font-bold text-slate-800 flex items-center';
-                }
-
-                changeIconDiv.className = divClasses;
-                changeIconDiv.innerHTML = `<i data-lucide="${iconName}"></i>`;
-                changeText.className = textClasses;
-                // ========== AKHIR MODIFIKASI ==========
-            };
-
-            const updateFactorsSummary = (factorKeys) => {
-                const container = document.getElementById('factors-summary-container');
-                container.innerHTML = ''; // Clear old factors
-
-                factorKeys.forEach(key => {
-                    const factor = FACTORS_DATA[key];
-                    if (!factor) return;
-
-                    let displayValue;
-                    if (factor.unit === 'Rp') {
-                        displayValue = formatCurrency(factor.value);
-                    } else if (factor.unit === '%') {
-                        displayValue = `${formatNumber(factor.value, 2)}%`;
-                    } else if (factor.unit === 'MYR') {
-                        displayValue = `${formatNumber(factor.value, 0)} ${factor.unit}`;
-                    } else {
-                        displayValue = `${formatNumber(factor.value, 1)} ${factor.unit}`;
-                    }
-
-                    const factorHtml = `
-                        <div class="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
-                            <div class="flex items-center overflow-hidden mr-2">
-                                <div class="p-2 bg-[${factor.color}22] text-[${factor.color}] rounded-lg mr-3">
-                                    <i data-lucide="${factor.icon}" class="w-5 h-5 flex-shrink-0"></i>
-                                </div>
-                                <div class="overflow-hidden">
-section                               <p class="font-semibold truncate">${factor.name}</p>
-                                    <p class="text-sm text-slate-500 truncate">${factor.subtitle}</p>
-                                </div>
-                            </div>
-                            <p class="font-bold text-lg text-right">${displayValue}</p>
-section                   </div>
-                    `;
-                    container.innerHTML += factorHtml;
-                });
-            };
-
-            const updateRecommendations = (regionData, currentCommodityKey) => {
-                const container = document.getElementById('recommendation-container');
-                container.innerHTML = '';
-
-                const commodity = regionData[currentCommodityKey];
-                const { month, threeMonth } = commodity.outlook;
-
-                let recIcon, recTitle, recText, bgColor, textColor, borderColor, titleColor;
-
-                if (month <= -5.0) { // Prioritas: Jual/Tahan Beli (outlook 1 bulan turun drastis)
-                    recIcon = 'pause-circle';
-                    titleColor = 'text-red-800';
-                    recTitle = `Tahan Beli: ${commodity.name}`;
-                    // [PERUBAHAN MANUAL DISINI]
-                    recText = `Harga ${commodity.name} diprediksi akan <strong>turun signifikan</strong> dalam 1 bulan ke depan (outlook: ${month.toFixed(1)}%). <br><strong class="mt-1 block">Faktor Pendorong:</strong> Prediksi ini didasari oleh masuknya musim panen raya di sentra produksi dan kondisi cuaca yang mendukung, sehingga pasokan diperkirakan melimpah. Sebaiknya tunda pembelian besar.`;
-                    bgColor = 'bg-red-50';
-                    borderColor = 'border-red-200';
-                    textColor = 'text-red-700';
-                } else if (month >= 2.0 || threeMonth >= 3.0) { // Prioritas: Beli (outlook 1 atau 3 bulan naik)
-                    recIcon = 'shopping-cart';
-                    titleColor = 'text-green-800';
-                    recTitle = `Segera Beli: ${commodity.name}`;
-                    // [PERUBAHAN MANUAL DISINI]
-                    recText = `Harga ${commodity.name} berpotensi <strong>naik stabil</strong> dalam 1-3 bulan ke depan (outlook 1bln: ${month.toFixed(1)}%). <br><strong class="mt-1 block">Faktor Pendorong:</strong> Prediksi kenaikan ini dipengaruhi oleh faktor musiman (akhir masa panen) dan kenaikan biaya logistik (harga BBM). Pertimbangkan untuk membeli stok sekarang.`;
-                    bgColor = 'bg-green-50';
-                    borderColor = 'border-green-200';
-                    textColor = 'text-green-700';
-                } else { // Netral / Stabil
-                    recIcon = 'check-circle';
-                    titleColor = 'text-blue-800';
-                    recTitle = `Harga Stabil: ${commodity.name}`;
-                    // [PERUBAHAN MANUAL DISINI]
-                    recText = `Harga ${commodity.name} diperkirakan akan <strong>relatif stabil</strong> dalam 1 bulan ke depan (outlook: ${month.toFixed(1)}%). <br><strong class="mt-1 block">Faktor Penjaga:</strong> Stabilitas ini didukung oleh ketersediaan stok nasional yang terkendali dan permintaan pasar yang normal. Tidak ada pergerakan harga drastis yang terdeteksi.`;
-                    bgColor = 'bg-blue-50';
-                    borderColor = 'border-blue-200';
-                    textColor = 'text-blue-700';
-                }
-
-                const cardHtml = `
-                    <div class="flex items-start p-4 rounded-lg ${bgColor} ${borderColor} border">
-                        <div class="flex-shrink-0 p-2 rounded-full ${bgColor.replace('-50', '-100')} ${titleColor.replace('-800', '-600')}">
-                            <i data-lucide="${recIcon}" class="w-6 h-6"></i>
-                        </div>
-                        <div class="ml-4">
-                            <h4 class="font-bold text-lg ${titleColor}">${recTitle}</h4>
-t                         <p class="text-sm ${textColor} mt-1">${recText}</p>
-                        </div>
-                    </div>
-                `;
-Note           container.innerHTML = cardHtml;
-            };
-
-            const updateOutlookTable = (regionData) => {
-                const tableBody = document.getElementById('outlook-table-body');
-                tableBody.innerHTML = '';
-
-                Object.keys(regionData).filter(key => key !== 'name').forEach(key => {
-                    const commodity = regionData[key];
-                    const { week, month, threeMonth } = commodity.outlook;
-                    const overview = generateDynamicData(key, currentRegion, currentDate);
-                    const currentPrice = overview.lastPrice;
-
-                    const createTrendCell = (price, percent) => {
-                        const futurePrice = price * (1 + percent / 100);
-                        const color = percent > 1 ? 'text-green-600' : percent < -1 ? 'text-red-600' : 'text-slate-500';
-section                     const icon = percent > 1 ? 'trending-up' : percent < -1 ? 'trending-down' : 'minus';
-                        return `
-                            <td class="p-4">
-                                <div class="font-medium flex items-center ${color}">
-                                    <i data-lucide="${icon}" class="w-4 h-4 mr-1.5"></i>
-                                    <span>${percent.toFixed(1)}%</span>
-                                </div>
-                                <div class="text-xs text-slate-500 font-normal mt-0.5">${formatCurrency(futurePrice)}</div>
-section                   </td>
-                        `;
-                    };
-
-                    let recIcon, recColor, recText;
-                    if (month >= 2.0) { recIcon = 'shopping-cart'; recColor = 'text-green-600'; recText = 'Segera Beli'; }
-                    else if (month <= -5.0) { recIcon = 'pause-circle'; recColor = 'text-red-600'; recText = 'Tahan Beli'; }
-                    else { recIcon = 'check-circle'; recColor = 'text-blue-600'; recText = 'Harga Stabil'; }
-
-                    const row = `
-                        <tr class="border-b border-slate-200 ${key === currentCommodity ? 'bg-indigo-50' : ''}">
-                            <td class="p-4 font-medium">${commodity.name}</td>
-                            <td class="p-4">${formatCurrency(currentPrice)}</td>
-section                       ${createTrendCell(currentPrice, week)}
-                            ${createTrendCell(currentPrice, month)}
-                            ${createTrendCell(currentPrice, threeMonth)}
-                            <td class="p-4 text-center">
-                                <div class="tooltip">
-Note                               <i data-lucide="${recIcon}" class="w-5 h-5 cursor-pointer ${recColor}"></i>
-                                    <span class="tooltiptext">${recText} (Outlook 1 Bulan)</span>
-s                           </div>
-                            </td>
-                        </tr>
-                    `;
-                    tableBody.innerHTML += row;
-                });
-            };
-
-            const updateChart = (data, timeRange) => {
-                if (!priceChart) return;
-                document.getElementById('chart-title').textContent = `Grafik Harga dan Prediksi (${data.name})`;
-
-GA               const { labels, historicalData, forecastData, unit } = generateChartData(timeRange, data.chartBase, data);
-                priceChart.data.labels = labels;
-                priceChart.data.datasets[0].data = historicalData;
-                priceChart.data.datasets[1].data = forecastData;
-
-                priceChart.options.scales.x.time.unit = unit;
-                if (unit === 'day') priceChart.options.scales.x.time.tooltipFormat = 'dd MMM yyyy';
-                else if (unit === 'week') priceChart.options.scales.x.time.tooltipFormat = "'Week of' dd MMM";
-section               else priceChart.options.scales.x.time.tooltipFormat = 'MMM yyyy';
-
-                priceChart.update();
-            };
-
-            window.updateDashboard = () => {
-section               const regionData = MOCK_DATA[currentRegion];
-                const commodityData = regionData[currentCommodity];
-
-                const dynamicOverview = generateDynamicData(currentCommodity, currentRegion, currentDate);
-
-                document.getElementById('location-subtitle').textContent = `Analisis dan Prediksi Harga untuk ${regionData.name}`;
-
-                updateOverview(dynamicOverview);
-                updateFactorsSummary(commodityData.factorKeys);
-                updateRecommendations(regionData, currentCommodity);
-GA               updateOutlookTable(regionData);
-                updateChart(commodityData, currentTimeRange);
-                lucide.createIcons();
-            };
-
-            regionSelect.addEventListener('change', (e) => { currentRegion = e.target.value; updateDashboard(); });
-            commoditySelect.addEventListener('change', (e) => { currentCommodity = e.target.value; updateDashboard(); });
-            timeRangeSelector.addEventListener('click', (e) => {
-                if (e.target.tagName === 'BUTTON') {
-                    currentTimeRange = parseInt(e.target.dataset.range, 10);
-                    timeRangeSelector.querySelectorAll('button').forEach(btn => btn.classList.remove('active', 'text-slate-500'));
-section                 timeRangeSelector.querySelectorAll('button').forEach(btn => {
-                        if (btn === e.target) {
-                            btn.classList.add('active');
-                        } else {
-                            btn.classList.add('text-slate-500');
-                        }
-                    });
-                    updateDashboard();
-section           }
-            });
-
-            const ctx = document.getElementById('priceChart').getContext('2d');
-            priceChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: [],
-                    datasets: [
-                        { label: 'Harga Historis (Rp)', data: [], borderColor: '#4f46e5', backgroundColor: 'rgba(79, 70, 229, 0.1)', fill: true, tension: 0.1, pointRadius: 0 },
-                        { label: 'Prediksi Harga (Rp)', data: [], borderColor: '#22c55e', borderDash: [5, 5], tension: 0.1, pointRadius: 0, fill: false }
-                    ]
-                },
-                options: {
-                    responsive: true,
-is                 maintainAspectRatio: false,
-                    scales: {
-                        x: { type: 'time', time: { unit: 'day', tooltipFormat: 'dd MMM yyyy' }, grid: { display: false } },
-                        y: { beginAtZero: false, ticks: { callback: (value) => formatCurrency(value) } }
-is                 },
-                    plugins: {
-                        legend: { position: 'top', align: 'end' },
-section                     tooltip: { mode: 'index', intersect: false, callbacks: { label: (c) => `${c.dataset.label}: ${formatCurrency(c.parsed.y)}` } }
-                    },
-                    interaction: { mode: 'index', intersect: false }
-key             }
-            });
-
-            updateDashboard();
-        }
-
-        // --- CORRELATION PAGE LOGIC ---
-        function initCorrelationPage() {
-            const varXSelect = document.getElementById('corr-var-x');
-            const varYSelect = document.getElementById('corr-var-y');
-            const matrixTable = document.getElementById('correlation-matrix-table');
-            const varKeys = Object.keys(CORRELATION_VARS);
-
-            // Populate select options
-            varXSelect.innerHTML = '';
-            varYSelect.innerHTML = '';
-            varKeys.forEach((key, index) => {
-                const varName = CORRELATION_VARS[key].name;
-                varXSelect.innerHTML += `<option value="${key}" ${index === 4 ? 'selected' : ''}>${varName}</option>`;
-                varYSelect.innerHTML += `<option value="${key}" ${index === 0 ? 'selected' : ''}>${varName}</option>`;
-            });
-
-            // Populate correlation matrix
-            const matrixHead = matrixTable.querySelector('thead');
-            const matrixBody = matrixTable.querySelector('tbody');
-            let headerRow = '<tr><th class="p-2 font-semibold border bg-slate-100 sticky left-0 z-10">Variabel</th>';
-            varKeys.forEach(key => {
-                headerRow += `<th class="p-2 font-semibold border bg-slate-50">${CORRELATION_VARS[key].name}</th>`;
-            });
-            headerRow += '</tr>';
-            matrixHead.innerHTML = headerRow;
-
-            matrixBody.innerHTML = '';
-            varKeys.forEach(rowKey => {
-                let rowHtml = `<tr><td class="p-2 font-semibold border bg-slate-100 sticky left-0 z-10">${CORRELATION_VARS[rowKey].name}</td>`;
-                varKeys.forEach(colKey => {
-                    const value = CORRELATION_MATRIX[rowKey][colKey];
-                    let bgColor = 'bg-white';
-                    if (value === 1.00) bgColor = 'bg-indigo-200';
-                    else if (value > 0.75) bgColor = 'bg-green-300';
-                    else if (value > 0.5) bgColor = 'bg-green-200';
-                    else if (value > 0.25) bgColor = 'bg-green-100';
-                    else if (value < -0.75) bgColor = 'bg-red-300';
-                    else if (value < -0.5) bgColor = 'bg-red-200';
-s                   else if (value < -0.25) bgColor = 'bg-red-100';
-
-                    rowHtml += `<td class="p-2 border ${bgColor} font-medium">${value.toFixed(2)}</td>`;
-                });
-                rowHtml += '</tr>';
-                matrixBody.innerHTML += rowHtml;
-            });
-
-
-            const updateCorrelationChart = () => {
-s             if (!correlationChart) return;
-                const xVar = varXSelect.value;
-                const yVar = varYSelect.value;
-                const xName = CORRELATION_VARS[xVar].name;
-GA               const yName = CORRELATION_VARS[yVar].name;
-
-                const dataPoints = CORRELATION_VARS[xVar].data.map((val, i) => ({ x: val, y: CORRELATION_VARS[yVar].data[i] }));
-
-                correlationChart.data.datasets[0].data = dataPoints;
-                correlationChart.options.scales.x.title.text = xName;
-key               correlationChart.options.scales.y.title.text = yName;
-                correlationChart.update();
-            };
-
-            varXSelect.addEventListener('change', updateCorrelationChart);
-            varYSelect.addEventListener('change', updateCorrelationChart);
-
-            const ctx = document.getElementById('correlationChart').getContext('2d');
-            correlationChart = new Chart(ctx, {
-                type: 'scatter',
-                data: { datasets: [{ label: '', data: [], backgroundColor: 'rgba(79, 70, 229, 0.6)' }] },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-s                 scales: {
-                        x: { title: { display: true, text: '' } },
-                        y: { title: { display: true, text: '' } }
-                    },
-                    plugins: { legend: { display: false } }
-                }
-            });
-            updateCorrelationChart();
-        }
-
-        // --- EXTERNAL FACTORS PAGE LOGIC ---
-        const createFactorChart = (canvasId, data, color) => {
-            const ctx = document.getElementById(canvasId).getContext('2d');
-            return new Chart(ctx, {
-                type: 'line',
-                data: {
-                    datasets: [{
-                        data: data,
-                        borderColor: color,
-                        fill: true,
-                        backgroundColor: `${color}33`, // 20% opacity
-                        tension: 0.3,
-                        pointRadius: 0
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        x: { type: 'time', display: false },
-                        y: { display: false }
-                    },
-                    plugins: {
-is                     legend: { display: false },
-                        tooltip: {
-                            enabled: true,
-                            mode: 'index',
-                    	     intersect: false,
-                            callbacks: {
-                                title: () => '', // No title
-                                label: (c) => {
-                                    const d = new Date(c.parsed.x);
-Key                                 return `${dateFns.format(d, 'dd MMM yyyy')}: ${formatNumber(c.parsed.y)}`;
-                                }
-                            }
-Key                     }
-                    }
-                }
-            });
-        };
-
-        window.renderFactorsPage = () => {
-            const container = document.getElementById('factors-grid-container');
-            const subtitle = document.getElementById('factors-subtitle'); // Ambil elemen subtitle
-
-            let factorKeys = [];
-            let subtitleText = '';
-
-            // Tentukan factorKeys dan teks subtitle berdasarkan filter
-            if (currentFactorFilter === 'semua') {
-                factorKeys = Object.keys(FACTORS_DATA); // Ambil SEMUA keys
-                subtitleText = 'Memonitor semua variabel kunci yang mempengaruhi stabilitas pangan';
-            } else {
-                // Ambil keys dari komoditas yang dipilih di dropdown
-Note               // Gunakan 'nasional' sebagai region default untuk data komoditas
-                const commodity = MOCK_DATA['nasional'][currentFactorFilter];
-                factorKeys = commodity.factorKeys; // Ambil keys spesifik
-                subtitleText = `Memonitor variabel kunci untuk ${commodity.name}`;
-GA           }
-
-            // Update teks subtitle
-            subtitle.textContent = subtitleText;
-
-            container.innerHTML = ''; // Clear old content
-
-            // Destroy old charts
-            Object.keys(factorCharts).forEach(key => {
-                if (factorCharts[key]) {
-                    factorCharts[key].destroy();
-                }
-            });
-            factorCharts = {};
-
-            // Generate new cards and charts
-            factorKeys.forEach(key => {
-                const factor = FACTORS_DATA[key];
-                if (!factor) return;
-
-                let displayValue;
-                if (factor.unit === 'Rp') displayValue = formatCurrency(factor.value);
-                else if (factor.unit === '%') displayValue = `${formatNumber(factor.value, 2)}%`;
-                else if (factor.unit === 'MYR') displayValue = `${formatNumber(factor.value, 0)} ${factor.unit}`;
-                else displayValue = `${formatNumber(factor.value, 1)} <span class="text-sm font-medium text-slate-500">${factor.unit}</span>`;
-
-                const canvasId = `factor-chart-${key}`;
-                const cardHtml = `
-                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-                        <div class="flex items-center mb-4">
-                            <div class="p-3 bg-[${factor.color}22] text-[${factor.color}] rounded-lg mr-4">
-Note                             <i data-lucide="${factor.icon}" class="w-6 h-6"></i>
-                            </div>
-                            <div>
-                                <h3 class="text-xl font-bold">${factor.name}</h3>
-G                             <p class="text-2xl font-bold mt-1">${displayValue}</p>
-                            </div>
-                        </div>
-                        <div class="small-chart-container mb-4"><canvas id="${canvasId}"></canvas></div>
-                        <p class="text-sm text-slate-600">${factor.desc}</p>
-                    </div>
-                `;
-                container.innerHTML += cardHtml;
-section       });
-
-            // Must render icons *after* adding HTML
-            lucide.createIcons();
-
-            // Now create charts
-            factorKeys.forEach(key => {
-                const factor = FACTORS_DATA[key];
-                if (!factor) return;
-                const canvasId = `factor-chart-${key}`;
-                // Gunakan seed berdasarkan tanggal dan key
-                const seed = currentDate.getDate() + currentDate.getMonth() * 31 + key.charCodeAt(0);
-                const chartData = generateTimeSeriesData(365, factor.chartBase, factor.volatility, factor.trend, seed);
-  s             factorCharts[key] = createFactorChart(canvasId, chartData, factor.color);
-            });
-        };
-        // --- END FACTORS PAGE LOGIC ---
-
-        // --- GLOBAL INITIALIZATION ---
-  t     initDashboardPage();
-        // initCorrelationPage(); // Lazily loaded on page view
-        // renderFactorsPage(); // Lazily loaded on page view
-        lucide.createIcons();
-    }
-    </script>
+    <div id="login-page" class="hidden flex items-center justify-center h-screen bg-slate-100">
+        </div>
+
+
+    <div id="app-container">
+        <div class="flex h-screen">
+            <aside class="w-64 bg-white border-r border-slate-200 flex-shrink-0 flex flex-col fixed md:static h-screen z-30 transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out">
+                <div>
+                    <div class="p-6 hidden md:flex items-center space-x-3">
+                        <div class="bg-indigo-600 text-white p-2 rounded-lg">
+                            <i data-lucide="line-chart"></i>
+                        </div>
+                        <h1 class="text-xl font-bold text-indigo-600">SiPanganCerdas</h1>
+                    </div>
+                    <nav id="sidebar-nav" class="mt-6 px-4">
+                        <a href="#dashboard" class="nav-link flex items-center px-4 py-2 text-slate-700 rounded-lg font-semibold active">
+                            <i data-lucide="layout-dashboard" class="w-5 h-5 mr-3 text-slate-500"></i>
+                            Dasbor Harga
+                        </a>
+                        <a href="#correlation" class="nav-link flex items-center px-4 py-2 mt-2 text-slate-600 rounded-lg">
+                            <i data-lucide="bar-chart-3" class="w-5 h-5 mr-3 text-slate-500"></i>
+                            Analisis Korelasi
+                        </a>
+                        <a href="#factors" class="nav-link flex items-center px-4 py-2 mt-2 text-slate-600 rounded-lg">
+                            <i data-lucide="cloud-sun" class="w-5 h-5 mr-3 text-slate-500"></i>
+                            Faktor Eksternal
+                        </a>
+                         <a href="#news" class="nav-link flex items-center px-4 py-2 mt-2 text-slate-600 rounded-lg">
+                            <i data-lucide="newspaper" class="w-5 h-5 mr-3 text-slate-500"></i>
+                            Berita Pangan
+                        </a>
+                        <a href="#about" class="nav-link flex items-center px-4 py-2 mt-2 text-slate-600 rounded-lg">
+                            <i data-lucide="info" class="w-5 h-5 mr-3 text-slate-500"></i>
+                            Tentang Aplikasi
+                        </a>
+                    </nav>
+                </div>
+                <div class="mt-auto p-4">
+                     <a href="#" id="logout-btn" class="flex items-center px-4 py-2 mt-2 text-slate-600 hover:bg-red-50 hover:text-red-600 rounded-lg">
+                        <i data-lucide="log-out" class="w-5 h-5 mr-3"></i>
+                        Keluar
+                    </a>
+                </div>
+            </aside>
+            <div id="sidebar-backdrop" class="fixed inset-0 bg-black bg-opacity-50 z-20 hidden md:hidden"></div>
+            <div class="flex-1 overflow-y-auto">
+
+                <div class="md:hidden p-4 bg-white border-b border-slate-200 flex justify-between items-center sticky top-0 z-10">
+                    <div class="flex items-center space-x-3">
+                        <div class="bg-indigo-600 text-white p-2 rounded-lg">
+                            <i data-lucide="line-chart"></i>
+                        </div>
+                        <h1 class="text-xl font-bold text-indigo-600">SiPanganCerdas</h1>
+                    </div>
+                    <button id="mobile-menu-btn" class="p-2 rounded-lg hover:bg-slate-100">
+                        <i data-lucide="menu" class="w-6 h-6"></i>
+                    </button>
+                </div>
+                <main id="page-dashboard" class="page active p-8">
+                    <header class="flex flex-col md:flex-row justify-between items-center mb-8">
+                        <div>
+                            <h2 class="text-3xl font-bold">Dasbor Harga Bahan Pokok</h2>
+                            <p id="location-subtitle" class="text-slate-500 mt-1">Analisis dan Prediksi Harga Nasional</p>
+                        </div>
+                        <div class="flex items-center space-x-4 mt-4 md:mt-0">
+                            <div class="relative">
+                                <select id="region-select" class="select-secondary w-48 p-2 pl-3 border rounded-lg bg-white transition">
+                                    <option value="nasional">Nasional</option>
+                                    <option value="jatim">Jawa Timur</option>
+                                    <option value="dki">DKI Jakarta</option>
+                                    <option value="jabar">Jawa Barat</option>
+                                </select>
+                            </div>
+                            <div>
+                                <input type="date" id="currentDateInput" class="select-secondary w-48 p-2 pl-3 border rounded-lg bg-white transition">
+                            </div>
+                        </div>
+                    </header>
+
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm mb-8">
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-center">
+                            <div class="lg:col-span-1">
+                                <label for="commodity-select" class="text-sm font-medium text-slate-600">Pilih Komoditas</label>
+                                <div class="mt-1 relative">
+                                    <select id="commodity-select" class="select-secondary w-full pl-4 py-2.5 border rounded-lg bg-white transition">
+                                        <option value="beras">Beras Premium</option>
+                                        <option value="minyak">Minyak Goreng Curah</option>
+                                        <option value="gula">Gula Pasir</option>
+                                        <option value="cabai">Cabai Rawit Merah</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div id="overview-last-price" class="flex items-center space-x-4 p-4 bg-slate-50 rounded-lg">
+                                <div class="p-3 bg-blue-100 text-blue-600 rounded-full">
+                                    <i data-lucide="tag"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-slate-500">Harga Hari Ini (/kg)</p>
+                                    <p class="text-2xl font-bold text-slate-800">Rp 15.200</p>
+                                </div>
+                            </div>
+                             <div id="overview-price-change" class="flex items-center space-x-4 p-4 bg-slate-50 rounded-lg">
+                                <div class="p-3 bg-red-100 text-red-600 rounded-full">
+                                    <i data-lucide="trending-down"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-slate-500">Perubahan (24 Jam)</p>
+                                    <p class="text-2xl font-bold text-red-600 flex items-center">- Rp 150 <span class="text-base font-medium ml-2">(-1.05%)</span></p>
+                                </div>
+                            </div>
+                             <div id="overview-prediction" class="flex items-center space-x-4 p-4 bg-slate-50 rounded-lg">
+                                <div class="p-3 bg-green-100 text-green-600 rounded-full">
+                                   <i data-lucide="arrow-up-right"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-slate-500">Prediksi Besok</p>
+                                    <p class="text-2xl font-bold text-green-600">Rp 15.250</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                        <div class="lg:col-span-2 bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4">
+                                <h3 id="chart-title" class="text-lg font-bold mb-3 sm:mb-0">Grafik Harga dan Prediksi (Beras Premium)</h3>
+                                <div id="time-range-selector" class="flex space-x-1 bg-slate-100 p-1 rounded-lg">
+                                    <button data-range="30" class="time-range-btn px-3 py-1 text-sm rounded-md active">1 Bulan</button>
+                                    <button data-range="90" class="time-range-btn px-3 py-1 text-sm text-slate-500 rounded-md">3 Bulan</button>
+                                    <button data-range="365" class="time-range-btn px-3 py-1 text-sm text-slate-500 rounded-md">1 Tahun</button>
+                                </div>
+                            </div>
+                            <div class="chart-container">
+                                <canvas id="priceChart"></canvas>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                            <h3 class="text-lg font-bold mb-4">Faktor Pengaruh Utama</h3>
+                            <div id="factors-summary-container" class="space-y-4">
+                                </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-8 bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                         <h3 class="text-lg font-bold mb-4">Rekomendasi Strategis</h3>
+                         <div id="recommendation-container">
+                            </div>
+                    </div>
+
+                    <div class="mt-8 bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                         <h3 class="text-lg font-bold mb-4">Tabel Outlook Harga (Semua Komoditas)</h3>
+                         <div class="overflow-x-auto">
+                            <table class="w-full text-left">
+                                <thead class="bg-slate-50 text-sm text-slate-600">
+                                    <tr>
+                                        <th class="p-4 font-semibold rounded-l-lg">Komoditas</th>
+                                        <th class="p-4 font-semibold">Harga Saat Ini (/kg)</th>
+                                        <th class="p-4 font-semibold">Outlook 1 Minggu</th>
+                                        <th class="p-4 font-semibold">Outlook 1 Bulan</th>
+                                        <th class="p-4 font-semibold">Outlook 3 Bulan</th>
+                                        <th class="p-4 font-semibold text-center rounded-r-lg">Rekomendasi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="outlook-table-body"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </main>
+
+                <main id="page-correlation" class="page p-8">
+                    <header class="mb-8">
+                        <h2 class="text-3xl font-bold">Analisis Korelasi</h2>
+                        <p class="text-slate-500 mt-1">Memahami Hubungan Antar Variabel yang Mempengaruhi Harga</p>
+                    </header>
+
+                    <div class="space-y-8">
+
+                        <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                            <h3 class="text-lg font-bold mb-4">Visualisasi Korelasi (Scatter Plot)</h3>
+                            <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 mb-4">
+                                <div class="flex-1">
+                                    <label class="text-sm font-medium">Variabel X</label>
+                                    <select id="corr-var-x" class="select-secondary w-full mt-1 p-2 border rounded-lg bg-white">
+                                        </select>
+                                </div>
+                                 <div class="flex-1">
+                                    <label class="text-sm font-medium">Variabel Y</label>
+                                    <select id="corr-var-y" class="select-secondary w-full mt-1 p-2 border rounded-lg bg-white">
+                                        </select>
+                                </div>
+                            </div>
+                            <div class="chart-container">
+                                <canvas id="correlationChart"></canvas>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                            <h3 class="text-lg font-bold mb-4">Matriks Korelasi</h3>
+                            <p class="text-sm text-slate-500 mb-4">
+                                Menunjukkan kekuatan hubungan antar variabel. Nilai mendekati 1 (hijau) atau -1 (merah) menunjukkan korelasi kuat. Nilai mendekati 0 (putih) menunjukkan korelasi lemah.
+                            </p>
+                            <div class="overflow-x-auto">
+                                <table id="correlation-matrix-table" class="w-full text-center text-sm border-collapse">
+                                    <thead>
+                                        </thead>
+                                    <tbody>
+                                        </tbody>
+                                </table>
+                            </div>
+                            <div class="mt-4 p-4 bg-blue-50 border-l-4 border-blue-500 text-blue-800 space-y-2">
+                                <h4 class="font-bold">Bagaimana Cara Membacanya?</h4>
+                                <ul class="list-disc list-inside text-sm space-y-1">
+                                    <li>
+                                        <strong class="text-green-700">Korelasi Positif (e.g., 0.82):</strong> Jika satu variabel naik, variabel lainnya cenderung ikut naik. Contohnya, <strong>Harga BBM</strong> yang naik (biaya logistik) seringkali diikuti oleh kenaikan <strong>Harga Beras</strong>.
+                                    </li>
+                                    <li>
+                                        <strong class="text-red-700">Korelasi Negatif (e.g., -0.75):</strong> Jika satu variabel naik, variabel lainnya cenderung turun. Contohnya, saat <strong>Stok Beras</strong> tinggi (pasokan melimpah), <strong>Harga Beras</strong> cenderung turun.
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </main>
+
+                 <main id="page-factors" class="page p-8">
+                    <header class="flex flex-col md:flex-row justify-between items-center mb-8">
+                        <div>
+                            <h2 class="text-3xl font-bold">Detail Faktor Eksternal</h2>
+                            <p id="factors-subtitle" class="text-slate-500 mt-1">Memonitor semua variabel kunci yang mempengaruhi stabilitas pangan</p>
+                        </div>
+                        <div class="mt-4 md:mt-0">
+                            <label for="factors-commodity-select" class="text-sm font-medium text-slate-600">Filter berdasarkan Komoditas</label>
+                            <select id="factors-commodity-select" class="select-secondary w-full md:w-64 mt-1 p-2 border rounded-lg bg-white">
+                                <option value="semua" selected>Semua Komoditas</option>
+                                <option value="beras">Beras Premium</option>
+                                <option value="minyak">Minyak Goreng Curah</option>
+                                <option value="gula">Gula Pasir</option>
+                                <option value="cabai">Cabai Rawit Merah</option>
+                            </select>
+                        </div>
+                    </header>
+                    <div id="factors-grid-container" class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        </div>
+                </main>
+
+                <main id="page-news" class="page p-8">
+                    <header class="mb-8">
+                        <h2 class="text-3xl font-bold">Berita Pangan dan Ekonomi</h2>
+                        <p class="text-slate-500 mt-1">Kumpulan berita terbaru seputar sektor pangan dan logistik.</p>
+                    </header>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+
+                        <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
+                            <img src="https://picsum.photos/seed/beras/600/300" alt="Ilustrasi beras" class="w-full h-48 object-cover">
+                            <div class="p-6 flex flex-col flex-1">
+                                <span class="text-sm font-semibold text-indigo-600 mb-2">KOMODITAS BERAS</span>
+                                <h3 class="text-xl font-bold mb-3">Pemerintah Pastikan Stok Beras Aman Menjelang Akhir Tahun</h3>
+                                <p class="text-slate-600 text-sm mb-4 flex-1">Kementerian Pertanian dan Bulog mengkonfirmasi bahwa stok Cadangan Beras Pemerintah (CBP) berada di level 1.5 Juta ton, cukup untuk mengantisipasi kebutuhan hingga 3 bulan ke depan.</p>
+                                <a href="#" class="font-semibold text-indigo-600 hover:text-indigo-800 flex items-center">
+                                    Baca Selengkapnya <i data-lucide="arrow-right" class="w-4 h-4 ml-1"></i>
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
+                            <img src="https://picsum.photos/seed/logistik/600/300" alt="Ilustrasi logistik" class="w-full h-48 object-cover">
+                            <div class="p-6 flex flex-col flex-1">
+                                <span class="text-sm font-semibold text-orange-600 mb-2">LOGISTIK & BBM</span>
+                                <h3 class="text-xl font-bold mb-3">Kenaikan Harga BBM Nonsubsidi Pengaruhi Biaya Logistik Pangan</h3>
+                                <p class="text-slate-600 text-sm mb-4 flex-1">Asosiasi logistik menyebutkan adanya penyesuaian tarif angkutan barang sekitar 5-10% menyusul kenaikan harga BBM industri, yang berpotensi berdampak pada harga eceran di pasar.</p>
+                                <a href="#" class="font-semibold text-indigo-600 hover:text-indigo-800 flex items-center">
+                                    Baca Selengkapnya <i data-lucide="arrow-right" class="w-4 h-4 ml-1"></i>
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
+                            <img src="https://picsum.photos/seed/cabai/600/300" alt="Ilustrasi cabai" class="w-full h-48 object-cover">
+                            <div class="p-6 flex flex-col flex-1">
+                                <span class="text-sm font-semibold text-red-600 mb-2">HORTIKULTURA</span>
+                                <h3 class="text-xl font-bold mb-3">Musim Hujan Datang, Petani Cabai Diimbau Waspada Patek</h3>
+                                <p class="text-slate-600 text-sm mb-4 flex-1">Curah hujan tinggi dapat memicu serangan jamur antraknosa (patek) pada tanaman cabai. Harga cabai rawit diperkirakan akan sangat fluktuatif dalam beberapa minggu ke depan.</p>
+                                <a href="#" class="font-semibold text-indigo-600 hover:text-indigo-800 flex items-center">
+                                    Baca Selengkapnya <i data-lucide="arrow-right" class="w-4 h-4 ml-1"></i>
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
+                            <img src="https://picsum.photos/seed/ekonomi/600/300" alt="Ilustrasi ekonomi" class="w-full h-48 object-cover">
+                            <div class="p-6 flex flex-col flex-1">
+                                <span class="text-sm font-semibold text-violet-600 mb-2">EKONOMI MAKRO</span>
+                                <h3 class="text-xl font-bold mb-3">Bank Indonesia Menahan Suku Bunga Acuan di Level 6.25%</h3>
+                                <p class="text-slate-600 text-sm mb-4 flex-1">Keputusan ini diambil untuk menjaga stabilitas nilai tukar Rupiah di tengah ketidakpastian global. Inflasi bahan pangan (volatile food) menjadi salah satu fokus utama BI.</p>
+                                <a href="#" class="font-semibold text-indigo-600 hover:text-indigo-800 flex items-center">
+                                    Baca Selengkapnya <i data-lucide="arrow-right" class="w-4 h-4 ml-1"></i>
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
+                            <img src="https://picsum.photos/seed/minyak/600/300" alt="Ilustrasi minyak sawit" class="w-full h-48 object-cover">
+                            <div class="p-6 flex flex-col flex-1">
+                                <span class="text-sm font-semibold text-yellow-600 mb-2">MINYAK SAWIT (CPO)</span>
+                                <h3 class="text-xl font-bold mb-3">Harga CPO Global Berfluktuasi, Harga Minyak Goreng Domestik Stabil</h3>
+                                <p class="text-slate-600 text-sm mb-4 flex-1">Meskipun harga CPO di pasar global naik tipis, kebijakan DMO (Domestic Market Obligation) berhasil menjaga harga minyak goreng curah dan kemasan di dalam negeri tetap terkendali.</p>
+                                <a href="#" class="font-semibold text-indigo-600 hover:text-indigo-800 flex items-center">
+                                    Baca Selengkapnya <i data-lucide="arrow-right" class="w-4 h-4 ml-1"></i>
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
+                            <img src="https://picsum.photos/seed/gula/600/300" alt="Ilustrasi gula" class="w-full h-48 object-cover">
+                            <div class="p-6 flex flex-col flex-1">
+                                <span class="text-sm font-semibold text-cyan-600 mb-2">KOMODITAS GULA</span>
+                                <h3 class="text-xl font-bold mb-3">Musim Giling Tebu 2025 Lampaui Target Awal</h3>
+                                <p class="text-slate-600 text-sm mb-4 flex-1">Produksi gula kristal putih (GKP) tahun ini mencatatkan hasil positif didukung cuaca yang kondusif. Hal ini diharapkan dapat menjaga harga gula pasir di level yang wajar.</p>
+                                <a href="#" class="font-semibold text-indigo-600 hover:text-indigo-800 flex items-center">
+                                    Baca Selengkapnya <i data-lucide="arrow-right" class="w-4 h-4 ml-1"></i>
+                                </a>
+                            </div>
+                        </div>
+
+                    </div>
+                </main>
+
+                <main id="page-about" class="page p-8 space-y-8">
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                        <h2 class="text-2xl font-bold mb-4">SiPanganCerdas</h2>
+                        <p class="text-slate-600 leading-relaxed">
+                            SiPanganCerdas adalah sebuah platform web inovatif yang dirancang untuk menyediakan analisis dan prediksi harga bahan pokok secara akurat di tingkat nasional. Aplikasi ini bertujuan untuk menjadi pusat data dan informasi tepercaya bagi para pemangku kepentingan dalam memantau dinamika harga pangan di Indonesia.
+                        </p>
+                        <p class="text-slate-600 leading-relaxed mt-4">
+                            Visi kami adalah untuk mendukung stabilitas dan ketahanan pangan nasional melalui penyediaan data yang transparan, real-time, dan mudah diakses.
+                        </p>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                        <h2 class="text-2xl font-bold mb-6">Fitur Utama Kami</h2>
+                        <div class="space-y-6">
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0 bg-indigo-100 text-indigo-600 p-3 rounded-lg">
+                                    <i data-lucide="layout-dashboard" class="w-6 h-6"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <h3 class="text-lg font-semibold">Dasbor Harga Interaktif</h3>
+                                    <p class="text-slate-600 mt-1">Pantau harga terkini dari berbagai komoditas bahan pokok, lihat perubahan harga harian, dan analisis tren historis melalui grafik yang mudah dibaca.</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0 bg-indigo-100 text-indigo-600 p-3 rounded-lg">
+                                    <i data-lucide="line-chart" class="w-6 h-6"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <h3 class="text-lg font-semibold">Prediksi Harga Cerdas</h3>
+                                    <p class="text-slate-600 mt-1">Dapatkan prediksi harga untuk hari berikutnya yang diolah menggunakan model analisis data canggih, membantu Anda dalam mengambil keputusan strategis.</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0 bg-indigo-100 text-indigo-600 p-3 rounded-lg">
+                                    <i data-lucide="bar-chart-3" class="w-6 h-6"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <h3 class="text-lg font-semibold">Analisis Korelasi</h3>
+                                    <p class="text-slate-600 mt-1">Pahami bagaimana harga satu komoditas dapat berhubungan atau dipengaruhi oleh komoditas lainnya dan faktor eksternal.</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0 bg-indigo-100 text-indigo-600 p-3 rounded-lg">
+                                    <i data-lucide="cloud-sun" class="w-6 h-6"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <h3 class="text-lg font-semibold">Pemantauan Faktor Eksternal</h3>
+                                    <p class="text-slate-600 mt-1">Kami mengintegrasikan data-data eksternal (seperti cuaca, kebijakan, dan tren pasar) yang berpotensi mempengaruhi fluktuasi harga.</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0 bg-indigo-100 text-indigo-600 p-3 rounded-lg">
+                                    <i data-lucide="newspaper" class="w-6 h-6"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <h3 class="text-lg font-semibold">Pusat Berita Pangan</h3>
+                                    <p class="text-slate-600 mt-1">Tetap terinformasi dengan kumpulan berita terbaru seputar sektor pangan yang relevan dengan pergerakan harga.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                        <h2 class="text-2xl font-bold mb-4">Model Prediksi Kami</h2>
+                        <p class="text-slate-600 leading-relaxed">
+                            Fitur prediksi harga di <strong>SiPanganCerdas</strong> didukung oleh model machine learning canggih yang telah dilatih menggunakan data historis harga pangan dari berbagai sumber tepercaya.
+                        </p>
+                        <p class="text-slate-600 leading-relaxed mt-4">
+                            Model kami secara kontinu menganalisis pola dan tren pasar, serta memperhitungkan berbagai faktor eksternal untuk menghasilkan prediksi dengan tingkat akurasi yang tinggi. Kami berkomitmen untuk terus meningkatkan dan menyempurnakan model ini demi memberikan wawasan yang paling andal bagi Anda.
+                        </p>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                        <h2 class="text-2xl font-bold mb-4">Untuk Siapa Aplikasi Ini?</h2>
+                        <p class="text-slate-600 leading-relaxed">
+                            <strong>SiPanganCerdas</strong> ditujukan bagi para pembuat kebijakan, analis ekonomi, pelaku industri pangan, peneliti, serta masyarakat umum yang peduli dan ingin memahami dinamika harga bahan pokok di Indonesia.
+                        </p>
+                        <p class="text-slate-600 leading-relaxed mt-4">
+                            Dengan SiPanganCerdas, kami berharap dapat memberikan kontribusi positif dalam menciptakan ekosistem pangan yang lebih stabil dan transparan.
+                        </p>
+                    </div>
+                </main>
+                </div>
+            </div>
+    </div>
+
+    <script>
+    // --- REALISTIC MOCK DATA (Refactored) ---
+
+    // Global data for external factors
+    const FACTORS_DATA = {
+        bbm: {
+            name: "Harga BBM",
+            subtitle: "Pertalite/Liter",
+            value: 10000,
+            unit: "Rp",
+            chartBase: 10000,
+            color: '#f97316',
+            icon: 'fuel',
+            trend: 0.0003, // Slight upward trend
+            volatility: 0.02,
+            desc: "Harga BBM mempengaruhi biaya logistik dan distribusi pangan. Kenaikan harga BBM hampir selalu diikuti kenaikan harga komoditas."
+        },
+        weather: {
+            name: "Cuaca",
+            subtitle: "Curah Hujan Rata-rata",
+            value: 175,
+            unit: "mm/bln",
+            chartBase: 150,
+            color: '#06b6d4',
+            icon: 'cloud-rain',
+            trend: 0,
+            volatility: 0.8,
+            desc: "Curah hujan yang optimal mendukung panen. Kekeringan atau banjir (curah hujan ekstrem) dapat menyebabkan gagal panen dan menaikkan harga."
+        },
+        inflation: {
+            name: "Inflasi (YoY)",
+            subtitle: "Tingkat Nasional",
+            value: 2.84,
+            unit: "%",
+            chartBase: 2.8,
+            color: '#8b5cf6',
+            icon: 'trending-up',
+            trend: 0,
+            volatility: 0.1,
+            desc: "Inflasi umum menunjukkan daya beli masyarakat. Inflasi yang tinggi dapat menekan daya beli dan mendorong kenaikan harga secara umum."
+        },
+        stock_beras: {
+            name: "Stok Pangan (Beras)",
+            subtitle: "Stok Bulog Nasional",
+            value: 1.2,
+            unit: "Juta Ton",
+            chartBase: 1.2,
+            color: '#84cc16',
+            icon: 'warehouse',
+            trend: 0,
+            volatility: 0.3,
+            desc: "Jumlah stok cadangan beras nasional. Stok yang menipis di bawah 1 Juta Ton dapat memicu spekulasi dan kenaikan harga."
+        },
+        stock_minyak: {
+            name: "Harga CPO",
+            subtitle: "Pasar Global (MYR/Ton)",
+            value: 3950,
+            unit: "MYR",
+            chartBase: 3900,
+            color: '#eab308',
+            icon: 'droplets',
+            trend: 0.0001,
+            volatility: 0.15,
+            desc: "Harga minyak sawit mentah (CPO) global sangat mempengaruhi harga minyak goreng domestik, meskipun ada kebijakan DMO."
+        },
+        stock_gula: {
+            name: "Stok Pangan (Gula)",
+            subtitle: "Stok GKP Nasional",
+            value: 0.8,
+            unit: "Juta Ton",
+            chartBase: 0.8,
+            color: '#a855f7',
+            icon: 'cookie',
+            trend: 0,
+            volatility: 0.2,
+            desc: "Stok gula kristal putih (GKP) nasional. Ketergantungan pada impor gula mentah membuat harga rentan terhadap kurs dan harga global."
+        },
+        stock_cabai: {
+            name: "Produksi Cabai",
+            subtitle: "Estimasi Panen Bulanan",
+            value: 45,
+            unit: "Ribu Ton",
+            chartBase: 45,
+            color: '#ef4444',
+            icon: 'sprout',
+            trend: 0,
+            volatility: 1.2, // Very volatile
+            desc: "Produksi cabai sangat sensitif terhadap cuaca. Sedikit gangguan panen dapat menyebabkan lonjakan harga yang ekstrem."
+        }
+    };
+
+    // Base data for commodities, with VOLATILITY and TREND
+    const MOCK_DATA = {
+        nasional: {
+            name: "Nasional",
+            beras: { name: "Beras Premium", chartBase: 15100, volatility: 0.05, trend: 0.0001, outlook: { week: 0.5, month: 1.5, threeMonth: 2.5 }, factorKeys: ['stock_beras', 'bbm', 'weather', 'inflation'] },
+            minyak: { name: "Minyak Goreng Curah", chartBase: 15700, volatility: 0.15, trend: 0.0002, outlook: { week: 0.8, month: 2.0, threeMonth: 3.0 }, factorKeys: ['stock_minyak', 'bbm', 'inflation', 'weather'] },
+            gula: { name: "Gula Pasir", chartBase: 18450, volatility: 0.10, trend: 0.0001, outlook: { week: 0.2, month: 0.5, threeMonth: 1.0 }, factorKeys: ['stock_gula', 'bbm', 'inflation', 'weather'] },
+            cabai: { name: "Cabai Rawit Merah", chartBase: 56000, volatility: 0.45, trend: 0.0000, outlook: { week: -5.0, month: -10.0, threeMonth: 20.0 }, factorKeys: ['stock_cabai', 'weather', 'bbm', 'inflation'] }
+        },
+        jatim: {
+            name: "Jawa Timur",
+            beras: { name: "Beras Premium", chartBase: 14750, volatility: 0.04, trend: 0.0001, outlook: { week: 0.3, month: 1.2, threeMonth: 2.0 }, factorKeys: ['stock_beras', 'bbm', 'weather', 'inflation'] },
+            minyak: { name: "Minyak Goreng Curah", chartBase: 15400, volatility: 0.14, trend: 0.0002, outlook: { week: 0.7, month: 1.8, threeMonth: 2.8 }, factorKeys: ['stock_minyak', 'bbm', 'inflation', 'weather'] },
+            gula: { name: "Gula Pasir", chartBase: 18150, volatility: 0.09, trend: 0.0001, outlook: { week: 0.1, month: 0.4, threeMonth: 0.8 }, factorKeys: ['stock_gula', 'bbm', 'inflation', 'weather'] },
+            cabai: { name: "Cabai Rawit Merah", chartBase: 54000, volatility: 0.50, trend: 0.0000, outlook: { week: -6.0, month: -12.0, threeMonth: 18.0 }, factorKeys: ['stock_cabai', 'weather', 'bbm', 'inflation'] }
+        },
+        dki: {
+            name: "DKI Jakarta",
+            beras: { name: "Beras Premium", chartBase: 15400, volatility: 0.06, trend: 0.0002, outlook: { week: 0.8, month: 2.0, threeMonth: 3.0 }, factorKeys: ['stock_beras', 'bbm', 'weather', 'inflation'] },
+            minyak: { name: "Minyak Goreng Curah", chartBase: 15850, volatility: 0.16, trend: 0.0003, outlook: { week: 1.0, month: 2.5, threeMonth: 3.5 }, factorKeys: ['stock_minyak', 'bbm', 'inflation', 'weather'] },
+            gula: { name: "Gula Pasir", chartBase: 18700, volatility: 0.11, trend: 0.0002, outlook: { week: 0.3, month: 0.8, threeMonth: 1.5 }, factorKeys: ['stock_gula', 'bbm', 'inflation', 'weather'] },
+            cabai: { name: "Cabai Rawit Merah", chartBase: 61000, volatility: 0.40, trend: 0.0001, outlook: { week: -4.0, month: -8.0, threeMonth: 22.0 }, factorKeys: ['stock_cabai', 'weather', 'bbm', 'inflation'] }
+        },
+        jabar: {
+            name: "Jawa Barat",
+            beras: { name: "Beras Premium", chartBase: 15000, volatility: 0.05, trend: 0.0001, outlook: { week: 0.4, month: 1.3, threeMonth: 2.2 }, factorKeys: ['stock_beras', 'bbm', 'weather', 'inflation'] },
+            minyak: { name: "Minyak Goreng Curah", chartBase: 15600, volatility: 0.15, trend: 0.0002, outlook: { week: 0.7, month: 1.9, threeMonth: 2.9 }, factorKeys: ['stock_minyak', 'bbm', 'inflation', 'weather'] },
+            gula: { name: "Gula Pasir", chartBase: 18300, volatility: 0.10, trend: 0.0001, outlook: { week: 0.2, month: 0.6, threeMonth: 1.2 }, factorKeys: ['stock_gula', 'bbm', 'inflation', 'weather'] },
+            cabai: { name: "Cabai Rawit Merah", chartBase: 55500, volatility: 0.48, trend: 0.0000, outlook: { week: -5.5, month: -11.0, threeMonth: 19.0 }, factorKeys: ['stock_cabai', 'weather', 'bbm', 'inflation'] }
+        }
+    };
+
+    // Correlation data and metadata
+    const CORRELATION_VARS = {
+        harga_beras: { name: "Harga Beras", data: Array.from({length: 50}, () => 14800 + Math.random() * 1000) },
+        harga_minyak: { name: "Harga Minyak", data: Array.from({length: 50}, () => 15500 + Math.random() * 1000) },
+        harga_gula: { name: "Harga Gula", data: Array.from({length: 50}, () => 18000 + Math.random() * 1000) },
+        harga_cabai: { name: "Harga Cabai", data: Array.from({length: 50}, () => 50000 + Math.random() * 20000) },
+        harga_bbm: { name: "Harga BBM", data: Array.from({length: 50}, () => 9800 + Math.random() * 500) },
+        inflasi: { name: "Inflasi", data: Array.from({length: 50}, () => 2.5 + Math.random() * 1.5) },
+        curah_hujan: { name: "Curah Hujan", data: Array.from({length: 50}, () => 100 + Math.random() * 150) },
+        stok_beras: { name: "Stok Beras", data: Array.from({length: 50}, () => 1.0 + Math.random() * 0.8) }
+    };
+    // Pre-calculated correlation matrix
+    const CORRELATION_MATRIX = {
+        harga_beras: { harga_beras: 1.00, harga_minyak: 0.45, harga_gula: 0.30, harga_cabai: 0.15, harga_bbm: 0.82, inflasi: 0.68, curah_hujan: -0.45, stok_beras: -0.75 },
+        harga_minyak: { harga_beras: 0.45, harga_minyak: 1.00, harga_gula: 0.55, harga_cabai: 0.20, harga_bbm: 0.75, inflasi: 0.60, curah_hujan: -0.10, stok_beras: -0.30 },
+        harga_gula: { harga_beras: 0.30, harga_minyak: 0.55, harga_gula: 1.00, harga_cabai: 0.10, harga_bbm: 0.65, inflasi: 0.50, curah_hujan: -0.05, stok_beras: -0.20 },
+        harga_cabai: { harga_beras: 0.15, harga_minyak: 0.20, harga_gula: 0.10, harga_cabai: 1.00, harga_bbm: 0.25, inflasi: 0.15, curah_hujan: -0.65, stok_beras: -0.10 },
+        harga_bbm: { harga_beras: 0.82, harga_minyak: 0.75, harga_gula: 0.65, harga_cabai: 0.25, harga_bbm: 1.00, inflasi: 0.55, curah_hujan: -0.15, stok_beras: -0.50 },
+        inflasi: { harga_beras: 0.68, harga_minyak: 0.60, harga_gula: 0.50, harga_cabai: 0.15, harga_bbm: 0.55, inflasi: 1.00, curah_hujan: -0.05, stok_beras: -0.40 },
+        curah_hujan: { harga_beras: -0.45, harga_minyak: -0.10, harga_gula: -0.05, harga_cabai: -0.65, harga_bbm: -0.15, inflasi: -0.05, curah_hujan: 1.00, stok_beras: 0.35 },
+        stok_beras: { harga_beras: -0.75, harga_minyak: -0.30, harga_gula: -0.20, harga_cabai: -0.10, harga_bbm: -0.50, inflasi: -0.40, curah_hujan: 0.35, stok_beras: 1.00 }
+    };
+
+
+    // --- GLOBAL VARIABLES & STATE ---
+    let priceChart, correlationChart;
+    let factorCharts = {}; // Object to hold dynamic factor charts
+    let currentRegion = 'nasional';
+    let currentCommodity = 'beras';
+    let currentTimeRange = 30;
+    let currentDate = new Date(); // This will be the REAL today on load
+    let currentFactorFilter = 'semua'; // State baru untuk filter halaman faktor
+
+    // --- UTILITY FUNCTIONS ---
+    const formatCurrency = (value) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(value);
+    const formatNumber = (value, digits = 2) => new Intl.NumberFormat('id-ID', { minimumFractionDigits: digits, maximumFractionDigits: digits }).format(value);
+
+    // simple deterministic PRNG for seeded random numbers
+    function seededRandom(seed) {
+        let s = seed % 2147483647;
+        if (s <= 0) s += 2147483646;
+        return () => {
+            s = s * 16807 % 2147483647;
+            return (s - 1) / 2147483646;
+        };
+    }
+
+    // Generate time series data with trend and seeded randomness
+    const generateTimeSeriesData = (days, base, volatility, trend = 0, seed = 1) => {
+        const data = [];
+        let value = base;
+        const rand = seededRandom(seed);
+        for (let i = 0; i < days; i++) {
+            const d = new Date(currentDate);
+            d.setDate(d.getDate() - (days - 1 - i));
+
+            let change = (rand() - 0.5) * (base * volatility); // Fluktuasi harian
+            value += change + (base * trend); // Ditambah tren harian
+
+            if (value < base * 0.2) value = base * 0.2 + (rand() * 100);
+
+            data.push({ x: d, y: value });
+        }
+        return data;
+    };
+
+    // Dynamically generate overview data based on date
+    const generateDynamicData = (commodityKey, regionKey, date) => {
+        const commodity = MOCK_DATA[regionKey][commodityKey];
+        if (!commodity) return {};
+
+        const seed = date.getDate() + date.getMonth() * 31 + commodityKey.charCodeAt(0) + regionKey.charCodeAt(0);
+        const rand = seededRandom(seed);
+        const randYesterday = seededRandom(seed - 1); // Seed for yesterday's price
+
+        const basePrice = commodity.chartBase;
+
+        // Buat harga hari ini dan kemarin berdasarkan data historis
+        const todayData = generateTimeSeriesData(1, basePrice, commodity.volatility, commodity.trend, seed);
+        const todayPrice = todayData[0].y;
+
+        // Perlu seed kemarin untuk harga kemarin
+        const yesterdayData = generateTimeSeriesData(1, basePrice, commodity.volatility, commodity.trend, seed - 1);
+        const yesterdayPrice = yesterdayData[0].y;
+
+        const change = todayPrice - yesterdayPrice;
+        const changePercent = (change / yesterdayPrice) * 100;
+
+        // Prediksi dipengaruhi oleh outlook mingguan
+        const outlookBias = (commodity.outlook.week / 100) * (basePrice * 0.2); // Bias dari outlook
+        const randomJitter = (rand() - 0.5) * (basePrice * 0.02); // Jitter acak
+        const prediction = todayPrice + outlookBias + randomJitter;
+
+       return {
+            lastPrice: Math.round(todayPrice / 50) * 50, // Round to nearest 50
+            change: change, // Keep original change value
+            changePercent: changePercent,
+            prediction: Math.round(prediction / 50) * 50
+        };
+    };
+
+    // --- PAGE ROUTING & LOGIN LOGIC ---
+    document.addEventListener('DOMContentLoaded', () => {
+        const loginPage = document.getElementById('login-page');
+        const appContainer = document.getElementById('app-container');
+        const logoutBtn = document.getElementById('logout-btn');
+
+        loginPage.classList.add('hidden');
+        appContainer.classList.remove('hidden');
+
+        logoutBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            appContainer.classList.add('hidden');
+            loginPage.classList.remove('hidden');
+        });
+
+        currentDate = new Date();
+
+        initializeApp();
+    });
+
+
+    function initializeApp() {
+        const sidebarNav = document.getElementById('sidebar-nav');
+        const pages = document.querySelectorAll('.page');
+
+        // --- RESPONSIVE CODE ---
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const sidebar = document.querySelector('aside');
+        const backdrop = document.getElementById('sidebar-backdrop');
+
+        const toggleSidebar = () => {
+            sidebar.classList.toggle('-translate-x-full'); // Memunculkan/menyembunyikan sidebar
+            backdrop.classList.toggle('hidden'); // Memunculkan/menyembunyikan backdrop
+        };
+
+        mobileMenuBtn.addEventListener('click', toggleSidebar);
+        backdrop.addEventListener('click', toggleSidebar);
+        // --- END RESPONSIVE CODE ---
+
+        sidebarNav.addEventListener('click', (e) => {
+            const navLink = e.target.closest('.nav-link');
+            if (!navLink || navLink.id === 'logout-btn') return;
+            e.preventDefault();
+
+            sidebarNav.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+            navLink.classList.add('active');
+
+            const targetPageId = navLink.getAttribute('href').substring(1);
+            pages.forEach(page => {
+                page.classList.toggle('active', page.id === `page-${targetPageId}`);
+            });
+
+            // Re-render dynamic pages on navigation
+            if (targetPageId === 'factors') {
+                renderFactorsPage();
+            }
+            if (targetPageId === 'correlation') {
+                if (!correlationChart) {
+                    initCorrelationPage();
+                }
+            }
+
+            // Close sidebar on mobile after navigation
+            if (window.innerWidth < 768) { // 768px is 'md' breakpoint
+                toggleSidebar();
+            }
+        });
+
+        // --- FACTORS PAGE DROPDOWN LISTENER ---
+        const factorCommoditySelect = document.getElementById('factors-commodity-select');
+        factorCommoditySelect.addEventListener('change', (e) => {
+            currentFactorFilter = e.target.value;
+            // Render ulang halaman faktor HANYA jika sedang aktif
+            if (document.getElementById('page-factors').classList.contains('active')) {
+                renderFactorsPage();
+            }
+        });
+        // --- END FACTORS PAGE LISTENER ---
+
+        // --- DASHBOARD PAGE LOGIC ---
+        function initDashboardPage() {
+            const regionSelect = document.getElementById('region-select');
+            const commoditySelect = document.getElementById('commodity-select');
+            const timeRangeSelector = document.getElementById('time-range-selector');
+            const dateInput = document.getElementById('currentDateInput');
+
+            dateInput.valueAsDate = currentDate;
+
+            dateInput.addEventListener('change', (e) => {
+                currentDate = new Date(e.target.value);
+                updateDashboard();
+            });
+
+            const generateAggregatedData = (days, basePrice, commodity, seed) => {
+                const dailyData = generateTimeSeriesData(days, basePrice, commodity.volatility, commodity.trend, seed);
+
+                let groupedData = {};
+                let getKey;
+                let timeUnit;
+
+                if (days <= 90) { // Group by week
+                    timeUnit = 'week';
+                    getKey = (d) => dateFns.format(dateFns.startOfWeek(d), 'YYYY-[W]WW');
+                } else { // Group by month
+                    timeUnit = 'month';
+                    getKey = (d) => dateFns.format(d, 'YYYY-MM');
+                }
+
+                dailyData.forEach(d => {
+                    const key = getKey(d.x);
+                    if (!groupedData[key]) groupedData[key] = [];
+                    groupedData[key].push(d);
+                });
+
+                const aggregatedPoints = [];
+                for (const key in groupedData) {
+                    const group = groupedData[key];
+                    if (group.length === 0) continue;
+
+                    const avgPrice = group.reduce((sum, p) => sum + p.y, 0) / group.length;
+                    const midDate = group[Math.floor(group.length / 2)].x;
+
+                    aggregatedPoints.push({ x: midDate, y: avgPrice });
+                }
+                return { points: aggregatedPoints.sort((a,b) => a.x - b.x), unit: timeUnit };
+            }
+
+            const generateChartData = (days, basePrice, commodity) => {
+                const seed = currentDate.getDate() + currentDate.getMonth() * 31 + commodity.name.charCodeAt(0) + regionSelect.value.charCodeAt(0);
+                let historicalPoints, unit;
+
+                if (days <= 30) {
+                    unit = 'day';
+                    historicalPoints = generateTimeSeriesData(days, basePrice, commodity.volatility, commodity.trend, seed).map(p => ({ x: p.x, y: p.y }));
+                } else {
+                    const agg = generateAggregatedData(days, basePrice, commodity, seed);
+                    historicalPoints = agg.points;
+                    unit = agg.unit;
+                }
+
+                const labels = historicalPoints.map(p => p.x);
+                const historicalData = historicalPoints.map(p => p.y);
+
+                const historicalDataPointsCount = Math.max(labels.length - 2, Math.floor(labels.length * 0.95));
+                const finalHistoricalData = historicalData.slice(0, historicalDataPointsCount);
+                const lastHistoricalPoint = finalHistoricalData.length > 0 ? finalHistoricalData[finalHistoricalData.length-1] : basePrice;
+
+                const forecastData = Array(finalHistoricalData.length - 1).fill(null);
+                forecastData.push(lastHistoricalPoint);
+
+                const forecastSteps = labels.length - finalHistoricalData.length;
+                let lastForecastPrice = lastHistoricalPoint;
+                const rand = seededRandom(seed + 1);
+
+                const outlookBias = (commodity.outlook.week / 100) * (basePrice * 0.05) / 7; // Weekly bias per day
+
+                for(let i=0; i < forecastSteps; i++) {
+                    let randomJitter = (rand() - 0.5) * (basePrice * commodity.volatility * 0.2);
+                    lastForecastPrice += outlookBias + randomJitter;
+                    forecastData.push(lastForecastPrice);
+                }
+
+                return { labels, historicalData: finalHistoricalData, forecastData, unit };
+            };
+
+            const updateOverview = (data) => {
+                const { lastPrice, /* change, changePercent, */ prediction } = data; // Original calculated values might still be needed
+
+                document.querySelector('#overview-last-price p:last-child').textContent = formatCurrency(lastPrice);
+
+                // --- Sinkronisasi Prediksi --- (Tetap sama)
+                const predContainer = document.getElementById('overview-prediction');
+                const predIconDiv = predContainer.querySelector('.p-3');
+                const predText = predContainer.querySelector('p:last-child');
+                predText.textContent = formatCurrency(prediction);
+
+                let predIconName, predDivClasses, predTextClasses;
+                if (prediction > lastPrice + 10) {
+                    predIconName = 'arrow-up-right';
+                    predDivClasses = 'p-3 bg-green-100 text-green-600 rounded-full';
+                    predTextClasses = 'text-2xl font-bold text-green-600';
+                } else if (prediction < lastPrice - 10) {
+                    predIconName = 'arrow-down-right';
+                    predDivClasses = 'p-3 bg-red-100 text-red-600 rounded-full';
+                    predTextClasses = 'text-2xl font-bold text-red-600';
+                } else {
+                    predIconName = 'minus';
+                    predDivClasses = 'p-3 bg-slate-100 text-slate-600 rounded-full';
+                    predTextClasses = 'text-2xl font-bold text-slate-800';
+                }
+                predIconDiv.className = predDivClasses;
+                predIconDiv.innerHTML = `<i data-lucide="${predIconName}"></i>`;
+                predText.className = predTextClasses;
+                // --- Akhir Sinkronisasi Prediksi ---
+
+
+                // ========== MODIFIKASI PERUBAHAN 24 JAM (MANUAL) ==========
+                const changeContainer = document.getElementById('overview-price-change');
+                const changeIconDiv = changeContainer.querySelector('.p-3');
+                const changeText = changeContainer.querySelector('p:last-child');
+
+                // ** Atur Nilai Manual Di Sini **
+                const manualChangeValue = -150; // Contoh: Turun 150 Rupiah
+                const manualChangePercent = -1.05; // Contoh: Turun 1.05%
+
+                // Tampilkan nilai manual
+                changeText.innerHTML = `${formatCurrency(manualChangeValue)} <span class="text-base font-medium ml-2">(${manualChangePercent.toFixed(2)}%)</span>`;
+
+                // Atur warna dan ikon berdasarkan nilai manual
+                let iconName, divClasses, textClasses;
+                if (manualChangeValue > 0) { // Jika naik (manual)
+                    iconName = 'trending-up';
+                    divClasses = 'p-3 bg-green-100 text-green-600 rounded-full';
+                    textClasses = 'text-2xl font-bold text-green-600 flex items-center';
+                } else if (manualChangeValue < 0) { // Jika turun (manual)
+                    iconName = 'trending-down';
+                    divClasses = 'p-3 bg-red-100 text-red-600 rounded-full';
+                    textClasses = 'text-2xl font-bold text-red-600 flex items-center';
+                } else { // Jika 0 (manual atau dibulatkan)
+                    iconName = 'minus';
+                    divClasses = 'p-3 bg-slate-100 text-slate-600 rounded-full';
+                    textClasses = 'text-2xl font-bold text-slate-800 flex items-center';
+                }
+
+                changeIconDiv.className = divClasses;
+                changeIconDiv.innerHTML = `<i data-lucide="${iconName}"></i>`;
+                changeText.className = textClasses;
+                // ========== AKHIR MODIFIKASI ==========
+            };
+
+            const updateFactorsSummary = (factorKeys) => {
+                const container = document.getElementById('factors-summary-container');
+                container.innerHTML = ''; // Clear old factors
+
+                factorKeys.forEach(key => {
+                    const factor = FACTORS_DATA[key];
+                    if (!factor) return;
+
+                    let displayValue;
+                    if (factor.unit === 'Rp') {
+                        displayValue = formatCurrency(factor.value);
+                    } else if (factor.unit === '%') {
+                        displayValue = `${formatNumber(factor.value, 2)}%`;
+                    } else if (factor.unit === 'MYR') {
+                        displayValue = `${formatNumber(factor.value, 0)} ${factor.unit}`;
+                    } else {
+                        displayValue = `${formatNumber(factor.value, 1)} ${factor.unit}`;
+                    }
+
+                    const factorHtml = `
+                        <div class="flex items-center justify-between p-3 bg-slate-50 rounded-lg">
+                            <div class="flex items-center overflow-hidden mr-2">
+                                <div class="p-2 bg-[${factor.color}22] text-[${factor.color}] rounded-lg mr-3">
+                                    <i data-lucide="${factor.icon}" class="w-5 h-5 flex-shrink-0"></i>
+                                </div>
+                                <div class="overflow-hidden">
+                                    <p class="font-semibold truncate">${factor.name}</p>
+                                    <p class="text-sm text-slate-500 truncate">${factor.subtitle}</p>
+                                </div>
+                            </div>
+                            <p class="font-bold text-lg text-right">${displayValue}</p>
+                        </div>
+                    `;
+                    container.innerHTML += factorHtml;
+                });
+            };
+
+            const updateRecommendations = (regionData, currentCommodityKey) => {
+                const container = document.getElementById('recommendation-container');
+                container.innerHTML = '';
+
+                const commodity = regionData[currentCommodityKey];
+                const { month, threeMonth } = commodity.outlook;
+
+                let recIcon, recTitle, recText, bgColor, textColor, borderColor, titleColor;
+
+                if (month <= -5.0) { // Prioritas: Jual/Tahan Beli (outlook 1 bulan turun drastis)
+                    recIcon = 'pause-circle';
+                    titleColor = 'text-red-800';
+                    recTitle = `Tahan Beli: ${commodity.name}`;
+                    recText = `Harga ${commodity.name} diprediksi akan <strong>turun signifikan</strong> dalam 1 bulan ke depan (outlook: ${month.toFixed(1)}%). Sebaiknya tunda pembelian besar jika memungkinkan.`;
+                    bgColor = 'bg-red-50';
+                    borderColor = 'border-red-200';
+                    textColor = 'text-red-700';
+                } else if (month >= 2.0 || threeMonth >= 3.0) { // Prioritas: Beli (outlook 1 atau 3 bulan naik)
+                    recIcon = 'shopping-cart';
+                    titleColor = 'text-green-800';
+                    recTitle = `Segera Beli: ${commodity.name}`;
+                    recText = `Harga ${commodity.name} berpotensi <strong>naik stabil</strong> dalam 1-3 bulan ke depan (outlook 1bln: ${month.toFixed(1)}%). Pertimbangkan untuk membeli stok sekarang sebelum harga naik.`;
+                    bgColor = 'bg-green-50';
+                    borderColor = 'border-green-200';
+                    textColor = 'text-green-700';
+                } else { // Netral / Stabil
+                    recIcon = 'check-circle';
+                    titleColor = 'text-blue-800';
+                    recTitle = `Harga Stabil: ${commodity.name}`;
+                    recText = `Harga ${commodity.name} diperkirakan akan <strong>relatif stabil</strong> dalam 1 bulan ke depan (outlook: ${month.toFixed(1)}%). Tidak ada pergerakan harga drastis yang terdeteksi.`;
+                    bgColor = 'bg-blue-50';
+                    borderColor = 'border-blue-200';
+                    textColor = 'text-blue-700';
+                }
+
+                const cardHtml = `
+                    <div class="flex items-start p-4 rounded-lg ${bgColor} ${borderColor} border">
+                        <div class="flex-shrink-0 p-2 rounded-full ${bgColor.replace('-50', '-100')} ${titleColor.replace('-800', '-600')}">
+                            <i data-lucide="${recIcon}" class="w-6 h-6"></i>
+                        </div>
+                        <div class="ml-4">
+                            <h4 class="font-bold text-lg ${titleColor}">${recTitle}</h4>
+                            <p class="text-sm ${textColor} mt-1">${recText}</p>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML = cardHtml;
+            };
+
+            const updateOutlookTable = (regionData) => {
+                const tableBody = document.getElementById('outlook-table-body');
+                tableBody.innerHTML = '';
+
+                Object.keys(regionData).filter(key => key !== 'name').forEach(key => {
+                    const commodity = regionData[key];
+                    const { week, month, threeMonth } = commodity.outlook;
+                    const overview = generateDynamicData(key, currentRegion, currentDate);
+                    const currentPrice = overview.lastPrice;
+
+                    const createTrendCell = (price, percent) => {
+                        const futurePrice = price * (1 + percent / 100);
+                        const color = percent > 1 ? 'text-green-600' : percent < -1 ? 'text-red-600' : 'text-slate-500';
+                        const icon = percent > 1 ? 'trending-up' : percent < -1 ? 'trending-down' : 'minus';
+                        return `
+                            <td class="p-4">
+                                <div class="font-medium flex items-center ${color}">
+                                    <i data-lucide="${icon}" class="w-4 h-4 mr-1.5"></i>
+                                    <span>${percent.toFixed(1)}%</span>
+                                </div>
+                                <div class="text-xs text-slate-500 font-normal mt-0.5">${formatCurrency(futurePrice)}</div>
+                            </td>
+                        `;
+                    };
+
+                    let recIcon, recColor, recText;
+                    if (month >= 2.0) { recIcon = 'shopping-cart'; recColor = 'text-green-600'; recText = 'Segera Beli'; }
+                    else if (month <= -5.0) { recIcon = 'pause-circle'; recColor = 'text-red-600'; recText = 'Tahan Beli'; }
+                    else { recIcon = 'check-circle'; recColor = 'text-blue-600'; recText = 'Harga Stabil'; }
+
+                    const row = `
+                        <tr class="border-b border-slate-200 ${key === currentCommodity ? 'bg-indigo-50' : ''}">
+                            <td class="p-4 font-medium">${commodity.name}</td>
+                            <td class="p-4">${formatCurrency(currentPrice)}</td>
+                            ${createTrendCell(currentPrice, week)}
+                            ${createTrendCell(currentPrice, month)}
+                            ${createTrendCell(currentPrice, threeMonth)}
+                            <td class="p-4 text-center">
+                                <div class="tooltip">
+                                    <i data-lucide="${recIcon}" class="w-5 h-5 cursor-pointer ${recColor}"></i>
+                                    <span class="tooltiptext">${recText} (Outlook 1 Bulan)</span>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                    tableBody.innerHTML += row;
+                });
+            };
+
+            const updateChart = (data, timeRange) => {
+                if (!priceChart) return;
+                document.getElementById('chart-title').textContent = `Grafik Harga dan Prediksi (${data.name})`;
+
+                const { labels, historicalData, forecastData, unit } = generateChartData(timeRange, data.chartBase, data);
+                priceChart.data.labels = labels;
+                priceChart.data.datasets[0].data = historicalData;
+                priceChart.data.datasets[1].data = forecastData;
+
+                priceChart.options.scales.x.time.unit = unit;
+                if (unit === 'day') priceChart.options.scales.x.time.tooltipFormat = 'dd MMM yyyy';
+                else if (unit === 'week') priceChart.options.scales.x.time.tooltipFormat = "'Week of' dd MMM";
+                else priceChart.options.scales.x.time.tooltipFormat = 'MMM yyyy';
+
+                priceChart.update();
+            };
+
+            window.updateDashboard = () => {
+                const regionData = MOCK_DATA[currentRegion];
+                const commodityData = regionData[currentCommodity];
+
+                const dynamicOverview = generateDynamicData(currentCommodity, currentRegion, currentDate);
+
+                document.getElementById('location-subtitle').textContent = `Analisis dan Prediksi Harga untuk ${regionData.name}`;
+
+                updateOverview(dynamicOverview);
+                updateFactorsSummary(commodityData.factorKeys);
+                updateRecommendations(regionData, currentCommodity);
+                updateOutlookTable(regionData);
+                updateChart(commodityData, currentTimeRange);
+                lucide.createIcons();
+            };
+
+            regionSelect.addEventListener('change', (e) => { currentRegion = e.target.value; updateDashboard(); });
+            commoditySelect.addEventListener('change', (e) => { currentCommodity = e.target.value; updateDashboard(); });
+            timeRangeSelector.addEventListener('click', (e) => {
+                if (e.target.tagName === 'BUTTON') {
+                    currentTimeRange = parseInt(e.target.dataset.range, 10);
+                    timeRangeSelector.querySelectorAll('button').forEach(btn => btn.classList.remove('active', 'text-slate-500'));
+                    timeRangeSelector.querySelectorAll('button').forEach(btn => {
+                        if (btn === e.target) {
+                            btn.classList.add('active');
+                        } else {
+                            btn.classList.add('text-slate-500');
+                        }
+                    });
+                    updateDashboard();
+                }
+            });
+
+            const ctx = document.getElementById('priceChart').getContext('2d');
+            priceChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [
+                        { label: 'Harga Historis (Rp)', data: [], borderColor: '#4f46e5', backgroundColor: 'rgba(79, 70, 229, 0.1)', fill: true, tension: 0.1, pointRadius: 0 },
+                        { label: 'Prediksi Harga (Rp)', data: [], borderColor: '#22c55e', borderDash: [5, 5], tension: 0.1, pointRadius: 0, fill: false }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { type: 'time', time: { unit: 'day', tooltipFormat: 'dd MMM yyyy' }, grid: { display: false } },
+                        y: { beginAtZero: false, ticks: { callback: (value) => formatCurrency(value) } }
+                    },
+                    plugins: {
+                        legend: { position: 'top', align: 'end' },
+                        tooltip: { mode: 'index', intersect: false, callbacks: { label: (c) => `${c.dataset.label}: ${formatCurrency(c.parsed.y)}` } }
+                    },
+                    interaction: { mode: 'index', intersect: false }
+                }
+            });
+
+            updateDashboard();
+        }
+
+        // --- CORRELATION PAGE LOGIC ---
+        function initCorrelationPage() {
+            const varXSelect = document.getElementById('corr-var-x');
+            const varYSelect = document.getElementById('corr-var-y');
+            const matrixTable = document.getElementById('correlation-matrix-table');
+            const varKeys = Object.keys(CORRELATION_VARS);
+
+            // Populate select options
+            varXSelect.innerHTML = '';
+            varYSelect.innerHTML = '';
+            varKeys.forEach((key, index) => {
+                const varName = CORRELATION_VARS[key].name;
+                varXSelect.innerHTML += `<option value="${key}" ${index === 4 ? 'selected' : ''}>${varName}</option>`;
+                varYSelect.innerHTML += `<option value="${key}" ${index === 0 ? 'selected' : ''}>${varName}</option>`;
+            });
+
+            // Populate correlation matrix
+            const matrixHead = matrixTable.querySelector('thead');
+            const matrixBody = matrixTable.querySelector('tbody');
+            let headerRow = '<tr><th class="p-2 font-semibold border bg-slate-100 sticky left-0 z-10">Variabel</th>';
+            varKeys.forEach(key => {
+                headerRow += `<th class="p-2 font-semibold border bg-slate-50">${CORRELATION_VARS[key].name}</th>`;
+            });
+            headerRow += '</tr>';
+            matrixHead.innerHTML = headerRow;
+
+            matrixBody.innerHTML = '';
+            varKeys.forEach(rowKey => {
+                let rowHtml = `<tr><td class="p-2 font-semibold border bg-slate-100 sticky left-0 z-10">${CORRELATION_VARS[rowKey].name}</td>`;
+                varKeys.forEach(colKey => {
+                    const value = CORRELATION_MATRIX[rowKey][colKey];
+                    let bgColor = 'bg-white';
+                    if (value === 1.00) bgColor = 'bg-indigo-200';
+                    else if (value > 0.75) bgColor = 'bg-green-300';
+                    else if (value > 0.5) bgColor = 'bg-green-200';
+                    else if (value > 0.25) bgColor = 'bg-green-100';
+                    else if (value < -0.75) bgColor = 'bg-red-300';
+                    else if (value < -0.5) bgColor = 'bg-red-200';
+                    else if (value < -0.25) bgColor = 'bg-red-100';
+
+                    rowHtml += `<td class="p-2 border ${bgColor} font-medium">${value.toFixed(2)}</td>`;
+                });
+                rowHtml += '</tr>';
+                matrixBody.innerHTML += rowHtml;
+            });
+
+
+            const updateCorrelationChart = () => {
+                if (!correlationChart) return;
+                const xVar = varXSelect.value;
+                const yVar = varYSelect.value;
+                const xName = CORRELATION_VARS[xVar].name;
+                const yName = CORRELATION_VARS[yVar].name;
+
+                const dataPoints = CORRELATION_VARS[xVar].data.map((val, i) => ({ x: val, y: CORRELATION_VARS[yVar].data[i] }));
+
+                correlationChart.data.datasets[0].data = dataPoints;
+                correlationChart.options.scales.x.title.text = xName;
+                correlationChart.options.scales.y.title.text = yName;
+                correlationChart.update();
+            };
+
+            varXSelect.addEventListener('change', updateCorrelationChart);
+            varYSelect.addEventListener('change', updateCorrelationChart);
+
+            const ctx = document.getElementById('correlationChart').getContext('2d');
+            correlationChart = new Chart(ctx, {
+                type: 'scatter',
+                data: { datasets: [{ label: '', data: [], backgroundColor: 'rgba(79, 70, 229, 0.6)' }] },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { title: { display: true, text: '' } },
+                        y: { title: { display: true, text: '' } }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+            updateCorrelationChart();
+        }
+
+        // --- EXTERNAL FACTORS PAGE LOGIC ---
+        const createFactorChart = (canvasId, data, color) => {
+            const ctx = document.getElementById(canvasId).getContext('2d');
+            return new Chart(ctx, {
+                type: 'line',
+                data: {
+                    datasets: [{
+                        data: data,
+                        borderColor: color,
+                        fill: true,
+                        backgroundColor: `${color}33`, // 20% opacity
+                        tension: 0.3,
+                        pointRadius: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { type: 'time', display: false },
+                        y: { display: false }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            enabled: true,
+                            mode: 'index',
+                            intersect: false,
+                            callbacks: {
+                                title: () => '', // No title
+                                label: (c) => {
+                                    const d = new Date(c.parsed.x);
+                                    return `${dateFns.format(d, 'dd MMM yyyy')}: ${formatNumber(c.parsed.y)}`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        };
+
+        window.renderFactorsPage = () => {
+            const container = document.getElementById('factors-grid-container');
+            const subtitle = document.getElementById('factors-subtitle'); // Ambil elemen subtitle
+
+            let factorKeys = [];
+            let subtitleText = '';
+
+            // Tentukan factorKeys dan teks subtitle berdasarkan filter
+            if (currentFactorFilter === 'semua') {
+                factorKeys = Object.keys(FACTORS_DATA); // Ambil SEMUA keys
+                subtitleText = 'Memonitor semua variabel kunci yang mempengaruhi stabilitas pangan';
+            } else {
+                // Ambil keys dari komoditas yang dipilih di dropdown
+                // Gunakan 'nasional' sebagai region default untuk data komoditas
+                const commodity = MOCK_DATA['nasional'][currentFactorFilter];
+                factorKeys = commodity.factorKeys; // Ambil keys spesifik
+                subtitleText = `Memonitor variabel kunci untuk ${commodity.name}`;
+            }
+
+            // Update teks subtitle
+            subtitle.textContent = subtitleText;
+
+            container.innerHTML = ''; // Clear old content
+
+            // Destroy old charts
+            Object.keys(factorCharts).forEach(key => {
+                if (factorCharts[key]) {
+                    factorCharts[key].destroy();
+                }
+            });
+            factorCharts = {};
+
+            // Generate new cards and charts
+            factorKeys.forEach(key => {
+                const factor = FACTORS_DATA[key];
+                if (!factor) return;
+
+                let displayValue;
+                if (factor.unit === 'Rp') displayValue = formatCurrency(factor.value);
+                else if (factor.unit === '%') displayValue = `${formatNumber(factor.value, 2)}%`;
+                else if (factor.unit === 'MYR') displayValue = `${formatNumber(factor.value, 0)} ${factor.unit}`;
+                else displayValue = `${formatNumber(factor.value, 1)} <span class="text-sm font-medium text-slate-500">${factor.unit}</span>`;
+
+                const canvasId = `factor-chart-${key}`;
+                const cardHtml = `
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                        <div class="flex items-center mb-4">
+                            <div class="p-3 bg-[${factor.color}22] text-[${factor.color}] rounded-lg mr-4">
+                                <i data-lucide="${factor.icon}" class="w-6 h-6"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-bold">${factor.name}</h3>
+                                <p class="text-2xl font-bold mt-1">${displayValue}</p>
+                            </div>
+                        </div>
+                        <div class="small-chart-container mb-4"><canvas id="${canvasId}"></canvas></div>
+                        <p class="text-sm text-slate-600">${factor.desc}</p>
+                    </div>
+                `;
+                container.innerHTML += cardHtml;
+            });
+
+            // Must render icons *after* adding HTML
+            lucide.createIcons();
+
+            // Now create charts
+            factorKeys.forEach(key => {
+                const factor = FACTORS_DATA[key];
+                if (!factor) return;
+                const canvasId = `factor-chart-${key}`;
+                // Gunakan seed berdasarkan tanggal dan key
+                const seed = currentDate.getDate() + currentDate.getMonth() * 31 + key.charCodeAt(0);
+                const chartData = generateTimeSeriesData(365, factor.chartBase, factor.volatility, factor.trend, seed);
+                factorCharts[key] = createFactorChart(canvasId, chartData, factor.color);
+            });
+        };
+        // --- END FACTORS PAGE LOGIC ---
+
+        // --- GLOBAL INITIALIZATION ---
+        initDashboardPage();
+        // initCorrelationPage(); // Lazily loaded on page view
+        // renderFactorsPage(); // Lazily loaded on page view
+        lucide.createIcons();
+    }
+    </script>
 </body>
 </html>
