@@ -742,12 +742,12 @@
         const randomJitter = (rand() - 0.5) * (basePrice * 0.02); // Jitter acak
         const prediction = todayPrice + outlookBias + randomJitter;
 
-        return {
-            lastPrice: Math.round(todayPrice / 50) * 50, // Round to nearest 50
-            change: Math.round(change / 50) * 50,
-            changePercent: changePercent,
-            prediction: Math.round(prediction / 50) * 50
-        };
+       return {
+            lastPrice: Math.round(todayPrice / 50) * 50, // Round to nearest 50
+            change: change, // <--- UBAH BARIS INI
+            changePercent: changePercent,
+            prediction: Math.round(prediction / 50) * 50
+        };
     };
 
     // --- PAGE ROUTING & LOGIN LOGIC ---
