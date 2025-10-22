@@ -963,8 +963,8 @@
                 const changeText = changeContainer.querySelector('p:last-child');
 
                 // ** Atur Nilai Manual Di Sini **
-                const manualChangeValue = -150; // Contoh: Turun 150 Rupiah
-                const manualChangePercent = -1.05; // Contoh: Turun 1.05%
+                const manualChangeValue = 400; // Contoh: Turun 150 Rupiah
+                const manualChangePercent = 2.05; // Contoh: Turun 1.05%
 
                 // Tampilkan nilai manual
                 changeText.innerHTML = `${formatCurrency(manualChangeValue)} <span class="text-base font-medium ml-2">(${manualChangePercent.toFixed(2)}%)</span>`;
@@ -1041,7 +1041,7 @@
                     recIcon = 'pause-circle';
                     titleColor = 'text-red-800';
                     recTitle = `Tahan Beli: ${commodity.name}`;
-                    recText = `Harga ${commodity.name} diprediksi akan <strong>turun signifikan</strong> dalam 1 bulan ke depan (outlook: ${month.toFixed(1)}%). Sebaiknya tunda pembelian besar jika memungkinkan.`;
+                    recText = `Harga ${commodity.name} diprediksi akan <strong>turun signifikan</strong> dalam 1 bulan ke depan (outlook: ${month.toFixed(1)}%). <br><strong class="mt-1 block">Faktor Pendorong:</strong> Prediksi ini didasari oleh masuknya musim panen raya di sentra produksi dan kondisi cuaca yang mendukung, sehingga pasokan diperkirakan melimpah. Sebaiknya tunda pembelian besar.`;
                     bgColor = 'bg-red-50';
                     borderColor = 'border-red-200';
                     textColor = 'text-red-700';
@@ -1049,7 +1049,7 @@
                     recIcon = 'shopping-cart';
                     titleColor = 'text-green-800';
                     recTitle = `Segera Beli: ${commodity.name}`;
-                    recText = `Harga ${commodity.name} berpotensi <strong>naik stabil</strong> dalam 1-3 bulan ke depan (outlook 1bln: ${month.toFixed(1)}%). Pertimbangkan untuk membeli stok sekarang sebelum harga naik.`;
+                    recText = `Harga ${commodity.name} berpotensi <strong>naik stabil</strong> dalam 1-3 bulan ke depan (outlook 1bln: ${month.toFixed(1)}%). <br><strong class="mt-1 block">Faktor Pendorong:</strong> Prediksi kenaikan ini dipengaruhi oleh faktor musiman (akhir masa panen) dan kenaikan biaya logistik (harga BBM). Pertimbangkan untuk membeli stok sekarang.`;
                     bgColor = 'bg-green-50';
                     borderColor = 'border-green-200';
                     textColor = 'text-green-700';
@@ -1057,7 +1057,7 @@
                     recIcon = 'check-circle';
                     titleColor = 'text-blue-800';
                     recTitle = `Harga Stabil: ${commodity.name}`;
-                    recText = `Harga ${commodity.name} diperkirakan akan <strong>relatif stabil</strong> dalam 1 bulan ke depan (outlook: ${month.toFixed(1)}%). Tidak ada pergerakan harga drastis yang terdeteksi.`;
+                    recText = `Harga ${commodity.name} diperkirakan akan <strong>relatif stabil</strong> dalam 1 bulan ke depan (outlook: ${month.toFixed(1)}%). <br><strong class="mt-1 block">Faktor Penjaga:</strong> Stabilitas ini didukung oleh ketersediaan stok nasional yang terkendali dan permintaan pasar yang normal. Tidak ada pergerakan harga drastis yang terdeteksi.`;
                     bgColor = 'bg-blue-50';
                     borderColor = 'border-blue-200';
                     textColor = 'text-blue-700';
