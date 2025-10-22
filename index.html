@@ -927,7 +927,7 @@
             };
 
             const updateOverview = (data) => {
-                const { lastPrice, /* change, changePercent, */ prediction } = data; // Original calculated values might still be needed
+                const { lastPrice, change, changePercent, prediction } = data; // Original calculated values might still be needed
 
                 document.querySelector('#overview-last-price p:last-child').textContent = formatCurrency(lastPrice);
 
@@ -962,9 +962,9 @@
                 const changeIconDiv = changeContainer.querySelector('.p-3');
                 const changeText = changeContainer.querySelector('p:last-child');
 
-                // ** Atur Nilai Manual Di Sini **
-                const manualChangeValue = 400; // Contoh: Turun 150 Rupiah
-                const manualChangePercent = 2.05; // Contoh: Turun 1.05%
+               // ** Ambil Nilai Dinamis **
+                const manualChangeValue = change; 
+                const manualChangePercent = changePercent;
 
                 // Tampilkan nilai manual
                 changeText.innerHTML = `${formatCurrency(manualChangeValue)} <span class="text-base font-medium ml-2">(${manualChangePercent.toFixed(2)}%)</span>`;
