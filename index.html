@@ -756,7 +756,7 @@
 
         // Prediksi dipengaruhi oleh outlook mingguan
         const outlookBias = (commodity.outlook.week / 100) * (basePrice * 0.2); // Bias dari outlook
-        const randomJitter = (rand() - 0.5) * (basePrice * 0.02); // Jitter acak
+        const randomJitter = (rand() - 0.5) * (basePrice * 0.002); // Jitter acak
         // Prediksi bisa tetap pakai harga mentah (Raw) agar lebih akurat
         const prediction = todayPriceRaw + outlookBias + randomJitter;
 
