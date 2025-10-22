@@ -237,7 +237,7 @@
 
                 <div class="mt-8">
                          <h3 class="text-xl font-bold mb-4">Rekomendasi Aksi</h3>
-                         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                         <div class="grid grid-cols-1 gap-8">
                              <div id="recommendation-buy" class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm opacity-50 transition-opacity duration-300">
                                    <div class="flex items-center mb-3">
                                         <div id="rec-buy-icon" class="p-3 bg-slate-100 text-slate-500 rounded-full mr-4"><i data-lucide="shopping-cart" class="w-6 h-6"></i></div>
@@ -602,7 +602,7 @@
     </div>
 
     <script>
-        // --- MOCK DATA ---
+        // --- MOCK DATA (SUDAH DIATUR SESUAI PERMINTAAN: 3 NAIK, 1 TURUN) ---
         const MOCK_DATA = {
             nasional: {
                 name: "Nasional",
@@ -620,21 +620,16 @@
                     chartBase: 16300,
                     volatility: 0.02, // Sedang
                 },
-                // --- PERUBAHAN DATA GULA PASIR (AGAR NAIK/BELI) ---
                 gula: { 
                     name: "Gula Pasir", 
-                    // Data overview diubah agar konsisten (naik)
                     overview: { lastPrice: 18250, change: 50, changePercent: 0.27, prediction: 18300 }, 
-                    // outlook.month diubah jadi > 1.5, dan reason diubah
                     outlook: { week: 0.5, month: 2.0, threeMonth: 1.5, reason: "Gangguan pasokan impor dan peningkatan permintaan domestik diprediksi akan mendorong kenaikan harga." }, 
                     chartBase: 18200,
                     volatility: 0.015,
                 },
-                // --- DATA CABAI (TETAP TURUN/TAHAN) ---
                 cabai: { 
                     name: "Cabai Rawit Merah", 
                     overview: { lastPrice: 48000, change: -2000, changePercent: -4.0, prediction: 47000 }, 
-                    // outlook.month < -1.5 (memicu "Tahan")
                     outlook: { week: -6.0, month: -15.0, threeMonth: 8.0, reason: "Panen raya di sentra produksi utama menekan harga cabai secara nasional." }, 
                     chartBase: 50000,
                     volatility: 0.05, // Volatilitas TINGGI
@@ -647,7 +642,6 @@
                 gula: { name: "Gula Pasir", overview: { lastPrice: 18100, change: 0, changePercent: 0, prediction: 18100 }, outlook: { week: 0.2, month: -1.5, threeMonth: 1.8, reason: "Stok gula yang cukup akan menahan kenaikan harga dalam jangka pendek." }, chartBase: 18000, volatility: 0.015, factors: { bbm: { name: "Solar/Liter", value: "Rp 10.500" }, cuaca: { name: "Musim Giling Tebu", value: "Puncak" }, inflasi: { name: "Inflasi (YoY)", unit: "Jawa Timur", value: "2.95%" }, stok: { name: "Stok Gula (Jatim)", value: "210k Ton", color: "text-green-600" } } },
                 cabai: { name: "Cabai Rawit Merah", overview: { lastPrice: 45000, change: -2500, changePercent: -5.26, prediction: 44000 }, outlook: { week: -5.8, month: -12.3, threeMonth: 7.2, reason: "Memasuki musim panen raya cabai, harga diperkirakan akan turun signifikan." }, chartBase: 48000, volatility: 0.06, factors: { bbm: { name: "Pertalite/Liter", value: "Rp 10.000" }, cuaca: { name: "Curah Hujan (Sentra)", value: "85 mm (Rendah)" }, inflasi: { name: "Inflasi (YoY)", unit: "Jawa Timur", value: "2.95%" }, stok: { name: "Status Panen", value: "Puncak Panen", color: "text-red-600" } } }
             },
-            // Data DKI dan Jabar tidak diubah, namun logikanya tetap akan berfungsi
             dki: { 
                 name: "DKI Jakarta", 
                 beras: { name: "Beras Premium", overview: { lastPrice: 16100, change: 50, changePercent: 0.31, prediction: 16100 }, outlook: { week: 1.5, month: 4.0, threeMonth: 0.5, reason: "Ketergantungan pasokan dari daerah lain membuat harga di Jakarta lebih rentan naik." }, chartBase: 16000, volatility: 0.012, factors: { bbm: { name: "Pertalite/Liter", value: "Rp 10.000" }, cuaca: { name: "Suhu Rata-rata", value: "30°C" }, inflasi: { name: "Inflasi (YoY)", unit: "DKI Jakarta", value: "2.70%" }, stok: { name: "Stok Beras (DKI)", value: "80k Ton", color: "text-yellow-600" } } }, 
@@ -663,7 +657,7 @@
                 cabai: { name: "Cabai Rawit Merah", overview: { lastPrice: 47000, change: -2200, changePercent: -4.47, prediction: 46000 }, outlook: { week: -5.5, month: -11.0, threeMonth: 7.8, reason: "Sebagai salah satu sentra produksi, harga cabai di Jawa Barat cenderung lebih rendah." }, chartBase: 49000, volatility: 0.065, factors: { bbm: { name: "Pertalite/Liter", value: "Rp 10.000" }, cuaca: { name: "Curah Hujan (Sentra)", value: "95 mm (Rendah)" }, inflasi: { name: "Inflasi (YoY)", unit: "Jawa Barat", value: "2.88%" }, stok: { name: "Status Panen", value: "Panen Melimpah", color: "text-red-600" } } }
             }
         };
-
+        // (Data Faktor Eksternal dan Korelasi tetap sama)
         const CORRELATION_DATA = {
             harga_beras: Array.from({length: 50}, () => 15000 + Math.random() * 2000),
             harga_minyak: Array.from({length: 50}, () => 16000 + Math.random() * 1000),
@@ -684,23 +678,40 @@
         let priceChart, bbmChart, weatherChart, inflationChart, harvestChart, correlationChart;
         let today = new Date();
         
+        // --- PERBAIKAN GRAFIK: Memasang "Event Listeners" ---
+        // Kita letakkan semua listener di dalam DOMContentLoaded
+        // agar tombol-tombolnya pasti sudah ada saat script dijalankan.
         document.addEventListener('DOMContentLoaded', () => {
             setupNavigation();
-            initializeDashboard();
+            initializeDashboard(); // Ini akan memanggil updateDashboard() pertama kali
             
+            // INI ADALAH "KABEL" YANG HILANG:
+            // 1. Kabel untuk dropdown Komoditas
             document.getElementById('commodity-select').addEventListener('change', updateDashboard);
+            
+            // 2. Kabel untuk dropdown Wilayah
             document.getElementById('region-select').addEventListener('change', updateDashboard);
+            
+            // 3. Kabel untuk Kalender
             document.getElementById('currentDateInput').addEventListener('change', updateDashboard);
+            
+            // 4. Kabel untuk tombol 1 Bulan, 3 Bulan, dst.
             document.getElementById('time-range-selector').addEventListener('click', (e) => {
+                // Hanya jalankan jika yang diklik adalah BUTTON
                 if (e.target.tagName === 'BUTTON') {
+                    // Hapus 'active' dari semua tombol
                     document.querySelectorAll('.time-range-btn').forEach(btn => btn.classList.remove('active'));
+                    // Tambahkan 'active' ke tombol yang baru diklik
                     e.target.classList.add('active');
+                    // Panggil fungsi untuk update grafik
                     updateDashboard();
                 }
             });
             
+            // Panggil Lucide icons setelah semuanya siap
             lucide.createIcons(); 
         });
+        // --- AKHIR PERBAIKAN EVENT LISTENER ---
 
         function setupNavigation() {
             const navLinks = document.querySelectorAll('.nav-link');
@@ -741,25 +752,20 @@
             const dateDiff = Math.round((selectedDate - refDate) / (1000 * 60 * 60 * 24));
 
             if (dateDiff === 0) {
-                // Untuk demo, mari kita pastikan data 'change' konsisten dengan 'outlook'
-                // bahkan untuk hari ini.
+                // Memastikan data 'change' harian konsisten dengan 'outlook'
                 const outlookMonth = baseData.outlook.month;
                 if (outlookMonth > 1.5 && baseData.overview.change < 0) {
-                    baseData.overview.change = Math.abs(baseData.overview.change); // Paksa positif
-                    baseData.overview.changePercent = Math.abs(baseData.overview.changePercent);
+                    baseData.overview.change = Math.abs(baseData.overview.change); 
                 } else if (outlookMonth < -1.5 && baseData.overview.change > 0) {
-                     baseData.overview.change = -Math.abs(baseData.overview.change); // Paksa negatif
-                     baseData.overview.changePercent = -Math.abs(baseData.overview.changePercent);
+                     baseData.overview.change = -Math.abs(baseData.overview.change);
                 }
                 return baseData; 
             }
 
-            // Logika simulasi tanggal lampau (tetap ada)
             const priceChange = dateDiff * (baseData.chartBase * 0.001); 
             baseData.overview.lastPrice = Math.max(10000, baseData.overview.lastPrice + priceChange + (Math.random() - 0.5) * 100);
             baseData.overview.prediction = Math.max(10000, baseData.overview.prediction + (dateDiff * (baseData.chartBase * 0.001)) + (Math.random() - 0.5) * 100);
             baseData.overview.change = (Math.random() - 0.5) * (baseData.overview.lastPrice * 0.02);
-            baseData.overview.changePercent = (baseData.overview.change / baseData.overview.lastPrice * 100).toFixed(2);
             baseData.outlook.week += dateDiff * 0.05;
             baseData.outlook.month += dateDiff * 0.1;
             return baseData;
@@ -811,17 +817,20 @@
             updateDashboard(); 
         }
 
+        // Fungsi ini sekarang akan dipanggil oleh Event Listener setiap ada perubahan
         function updateDashboard() {
+            // 1. Baca semua input
             const region = document.getElementById('region-select').value;
             const commodityKey = document.getElementById('commodity-select').value;
             const days = document.querySelector('.time-range-btn.active').dataset.range;
             const selectedDate = document.getElementById('currentDateInput').value;
             
+            // 2. Ambil data yang sesuai
             const regionData = MOCK_DATA[region];
             const baseCommodityData = regionData[commodityKey];
             const commodityData = getSimulatedData(baseCommodityData, selectedDate);
 
-            // Update overview cards
+            // 3. Update semua kartu (Card)
             document.getElementById('location-subtitle').textContent = `Analisis dan Prediksi Harga ${regionData.name}`;
             document.getElementById('overview-last-price').querySelector('.text-2xl').textContent = formatCurrency(commodityData.overview.lastPrice);
             
@@ -831,7 +840,7 @@
             const changeIcon = changeIconContainer.querySelector('i');
             
             const change = commodityData.overview.change;
-            const changePercent = (change / commodityData.overview.lastPrice * 100).toFixed(2); // Hitung ulang persen
+            const changePercent = (change / commodityData.overview.lastPrice * 100).toFixed(2); 
             
             changeValEl.innerHTML = `${change > 0 ? '+' : ''} ${formatCurrency(Math.abs(change))} <span class="text-base font-medium ml-2">(${changePercent}%)</span>`;
             changeValEl.className = `text-2xl font-bold flex items-center ${change >= 0 ? 'text-green-600' : 'text-red-600'}`;
@@ -844,58 +853,62 @@
             const predIconContainer = predEl.querySelector('.p-3');
             const predIcon = predIconContainer.querySelector('i');
             
-            // KONSISTENSI WARNA: NAIK = MERAH (Waspada), TURUN = HIJAU (Aman)
             const threshold = 1.5;
-            if (outlookMonth > threshold) { // Harga NAIK (Waspada)
+            if (outlookMonth > threshold) { 
                 predValEl.textContent = `+${outlookMonth.toFixed(1)}%`;
-                predValEl.className = 'text-2xl font-bold text-red-600'; // Merah
-                predIconContainer.className = 'p-3 rounded-full bg-red-100 text-red-600'; // Merah
+                predValEl.className = 'text-2xl font-bold text-red-600'; 
+                predIconContainer.className = 'p-3 rounded-full bg-red-100 text-red-600'; 
                 predIcon.setAttribute('data-lucide', 'trending-up');
-            } else if (outlookMonth < -threshold) { // Harga TURUN (Aman)
+            } else if (outlookMonth < -threshold) { 
                 predValEl.textContent = `${outlookMonth.toFixed(1)}%`;
-                predValEl.className = 'text-2xl font-bold text-green-600'; // Hijau
-                predIconContainer.className = 'p-3 rounded-full bg-green-100 text-green-600'; // Hijau
+                predValEl.className = 'text-2xl font-bold text-green-600'; 
+                predIconContainer.className = 'p-3 rounded-full bg-green-100 text-green-600'; 
                 predIcon.setAttribute('data-lucide', 'trending-down');
-            } else { // STABIL (Netral)
+            } else { 
                 predValEl.textContent = `~${outlookMonth.toFixed(1)}%`;
                 predValEl.className = 'text-2xl font-bold text-slate-600';
                 predIconContainer.className = 'p-3 rounded-full bg-slate-100 text-slate-600';
                 predIcon.setAttribute('data-lucide', 'minus');
             }
 
-            // Update chart
+            // 4. Update Grafik
             document.getElementById('chart-title').textContent = `Grafik Harga dan Prediksi (${commodityData.name})`;
             const chartRawData = generateChartData(commodityData.chartBase, parseInt(days), commodityData.overview, selectedDate, commodityData.volatility);
             
-            priceChart.data.labels = chartRawData.labels;
-            priceChart.data.datasets = [
-                {
-                    label: 'Harga Historis',
-                    data: chartRawData.data,
-                    borderColor: '#4f46e5',
-                    backgroundColor: '#4f46e533',
-                    fill: 'start',
-                    tension: 0.3,
-                    pointRadius: (ctx) => (ctx.dataIndex === chartRawData.data.length - 1 ? 5 : 0),
-                    pointBackgroundColor: '#4f46e5',
-                },
-                {
-                    label: 'Prediksi (1 Hari)', // Label tetap 1 hari untuk data titik
-                    data: [...Array(chartRawData.data.length - 1).fill(null), chartRawData.data.pop(), commodityData.overview.prediction],
-                    borderColor: '#22c55e',
-                    borderDash: [5, 5],
-                    tension: 0.3,
-                    pointRadius: (ctx) => (ctx.dataIndex >= chartRawData.data.length - 1 ? 5 : 0),
-                    pointBackgroundColor: '#22c55e',
-                }
-            ];
-            priceChart.update();
+            // Cek jika priceChart sudah ada (penting)
+            if (priceChart) {
+                priceChart.data.labels = chartRawData.labels;
+                priceChart.data.datasets = [
+                    {
+                        label: 'Harga Historis',
+                        data: chartRawData.data,
+                        borderColor: '#4f46e5',
+                        backgroundColor: '#4f46e533',
+                        fill: 'start',
+                        tension: 0.3,
+                        pointRadius: (ctx) => (ctx.dataIndex === chartRawData.data.length - 1 ? 5 : 0),
+                        pointBackgroundColor: '#4f46e5',
+                    },
+                    {
+                        label: 'Prediksi (1 Hari)', 
+                        data: [...Array(chartRawData.data.length - 1).fill(null), chartRawData.data.pop(), commodityData.overview.prediction],
+                        borderColor: '#22c55e',
+                        borderDash: [5, 5],
+                        tension: 0.3,
+                        pointRadius: (ctx) => (ctx.dataIndex >= chartRawData.data.length - 1 ? 5 : 0),
+                        pointBackgroundColor: '#22c55e',
+                    }
+                ];
+                priceChart.update(); // Perintahkan Chart.js untuk menggambar ulang
+            }
             
+            // 5. Update bagian lain
             updateOutlookTable(region, selectedDate);
-            updateDashboardFactors(baseCommodityData.factors); // Factors tidak perlu disimulasi
+            // Cek dulu apakah 'factors' ada di data, jika tidak, gunakan data 'beras' sebagai default
+            updateDashboardFactors(commodityData.factors || MOCK_DATA[region].beras.factors); 
             updateRecommendations(commodityData); 
             
-            lucide.createIcons();
+            lucide.createIcons(); // Update ikon
         }
         
         function updateOutlookTable(region, selectedDate) {
@@ -952,7 +965,6 @@
         }
 
         function updateDashboardFactors(factors) {
-            // Cek jika factors ada, jika tidak (misal data jatim.beras blm di-set), pakai default
             if (!factors) {
                 factors = MOCK_DATA.nasional.beras.factors; // Fallback
             }
@@ -968,11 +980,10 @@
             document.getElementById('factor-stok-value').className = `font-bold text-lg ${factors.stok.color}`;
         }
 
-        // --- PERUBAHAN: Menambahkan 'commodityData.outlook.reason' ---
         function updateRecommendations(commodityData) {
             const outlookMonth = commodityData.outlook.month;
             const commodityName = commodityData.name;
-            const reason = commodityData.outlook.reason; // Ambil alasan
+            const reason = commodityData.outlook.reason; 
 
             const buyCard = document.getElementById('recommendation-buy');
             const holdCard = document.getElementById('recommendation-hold');
@@ -985,6 +996,7 @@
             const holdTitle = document.getElementById('rec-hold-title');
             const holdDesc = document.getElementById('rec-hold-desc');
 
+            // Sembunyikan keduanya dulu (pakai 'hidden' agar layoutnya rapi)
             buyCard.classList.add('hidden', 'opacity-50');
             holdCard.classList.add('hidden', 'opacity-50');
 
@@ -996,7 +1008,6 @@
                 buyIcon.className = 'p-3 bg-red-100 text-red-600 rounded-full mr-4';
                 buyTitle.className = 'text-xl font-bold text-red-600';
                 buyTitle.textContent = 'Rekomendasi: Beli';
-                // Tambahkan alasan di sini
                 buyDesc.innerHTML = `Prediksi kami menunjukkan harga <strong>${commodityName}</strong> akan <strong>naik signifikan (~${outlookMonth.toFixed(1)}%)</strong> dalam satu bulan ke depan. <br><br><strong class="text-slate-700">Alasan:</strong> ${reason}`;
 
             } else if (outlookMonth < -threshold) {
@@ -1005,7 +1016,6 @@
                 holdIcon.className = 'p-3 bg-green-100 text-green-600 rounded-full mr-4';
                 holdTitle.className = 'text-xl font-bold text-green-600';
                 holdTitle.textContent = 'Rekomendasi: Tahan';
-                // Tambahkan alasan di sini
                 holdDesc.innerHTML = `Harga <strong>${commodityName}</strong> berpotensi <strong>turun (~${outlookMonth.toFixed(1)}%)</strong> dalam satu bulan ke depan. <br><br><strong class="text-slate-700">Alasan:</strong> ${reason}`;
             
             } else {
@@ -1014,12 +1024,12 @@
                 holdIcon.className = 'p-3 bg-blue-100 text-blue-600 rounded-full mr-4';
                 holdTitle.className = 'text-xl font-bold text-blue-600';
                 holdTitle.textContent = 'Rekomendasi: Stabil';
-                // Tambahkan alasan di sini
                 holdDesc.innerHTML = `Harga <strong>${commodityName}</strong> diprediksi <strong>relatif stabil</strong> dalam satu bulan ke depan. <br><br><strong class="text-slate-700">Alasan:</strong> ${reason}`;
             }
             lucide.createIcons();
         }
 
+        // --- Bagian Chart Faktor Eksternal & Korelasi (Tidak ada perubahan) ---
         function initializeCorrelation() {
             const ctx = document.getElementById('correlationChart').getContext('2d');
             correlationChart = new Chart(ctx, {
