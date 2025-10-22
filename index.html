@@ -177,8 +177,8 @@
                                 <i data-lucide="arrow-up-right"></i>
                             </div>
                             <div>
-                                <p class="text-sm text-slate-500">Prediksi Besok</p>
-                                <p class="text-2xl font-bold text-green-600">Rp 15.600</p>
+                                <p class="text-sm text-slate-500">Prediksi 1 Bulan</p>
+                                <p class="text-2xl font-bold text-green-600">+2.5%</p>
                             </div>
                         </div>
                     </div>
@@ -191,6 +191,7 @@
                             <div id="time-range-selector" class="flex space-x-1 bg-slate-100 p-1 rounded-lg">
                                 <button data-range="30" class="time-range-btn px-3 py-1 text-sm rounded-md active">1 Bulan</button>
                                 <button data-range="90" class="time-range-btn px-3 py-1 text-sm text-slate-500 hover:bg-white/60 rounded-md">3 Bulan</button>
+                                <button data-range="180" class="time-range-btn px-3 py-1 text-sm text-slate-500 hover:bg-white/60 rounded-md">6 Bulan</button>
                                 <button data-range="365" class="time-range-btn px-3 py-1 text-sm text-slate-500 hover:bg-white/60 rounded-md">1 Tahun</button>
                             </div>
                         </div>
@@ -602,17 +603,16 @@
 
     <script>
         // --- MOCK DATA ---
-        // Penambahan 'factors' untuk setiap komoditas
+        // PERUBAHAN: Menambahkan 'volatility' untuk membuat grafik tiap komoditas berbeda
         const MOCK_DATA = {
             nasional: {
                 name: "Nasional",
                 beras: { 
                     name: "Beras Premium", 
-                    // --- PERBAIKAN DATA KONSISTENSI ---
-                    // 'change' (perubahan harian) dibuat positif agar konsisten dengan 'prediction' (prediksi besok)
                     overview: { lastPrice: 15800, change: 50, changePercent: 0.32, prediction: 15850 }, 
                     outlook: { week: 1.0, month: 2.5, threeMonth: -0.5, reason: "Stok nasional cukup, namun distribusi antar pulau menjadi faktor utama kenaikan jangka pendek." }, 
                     chartBase: 15700,
+                    volatility: 0.01, // Volatilitas rendah
                     factors: {
                         bbm: { name: "Pertalite/Liter", value: "Rp 10.000" },
                         cuaca: { name: "Suhu Rata-rata", value: "28°C" },
@@ -625,6 +625,7 @@
                     overview: { lastPrice: 16500, change: 150, changePercent: 0.91, prediction: 16600 }, 
                     outlook: { week: -0.2, month: 1.8, threeMonth: 3.5, reason: "Harga CPO global yang fluktuatif mempengaruhi harga minyak goreng domestik." }, 
                     chartBase: 16300,
+                    volatility: 0.02, // Volatilitas sedang
                     factors: {
                         bbm: { name: "Solar/Liter", value: "Rp 10.500" },
                         cuaca: { name: "Curah Hujan (Sawit)", value: "180 mm" },
@@ -637,6 +638,7 @@
                     overview: { lastPrice: 18250, change: 0, changePercent: 0, prediction: 18250 }, 
                     outlook: { week: 0.1, month: -1.0, threeMonth: 1.5, reason: "Ketersediaan dari impor menjaga harga tetap stabil dalam jangka pendek." }, 
                     chartBase: 18200,
+                    volatility: 0.015, // Volatilitas sedang-rendah
                     factors: {
                         bbm: { name: "Solar/Liter", value: "Rp 10.500" },
                         cuaca: { name: "Musim Giling Tebu", value: "Aktif" },
@@ -649,6 +651,7 @@
                     overview: { lastPrice: 48000, change: -2000, changePercent: -4.0, prediction: 47000 }, 
                     outlook: { week: -6.0, month: -15.0, threeMonth: 8.0, reason: "Panen raya di sentra produksi utama menekan harga cabai secara nasional." }, 
                     chartBase: 50000,
+                    volatility: 0.05, // Volatilitas TINGGI
                     factors: {
                         bbm: { name: "Pertalite/Liter", value: "Rp 10.000" },
                         cuaca: { name: "Curah Hujan (Sentra)", value: "90 mm (Rendah)" },
@@ -659,27 +662,24 @@
             },
             jatim: {
                 name: "Jawa Timur",
-                // --- PERBAIKAN DATA KONSISTENSI ---
-                beras: { name: "Beras Premium", overview: { lastPrice: 15550, change: 50, changePercent: 0.32, prediction: 15600 }, outlook: { week: 1.2, month: 3.5, threeMonth: -0.8, reason: "Harga beras diperkirakan stabil naik dalam 1 bulan ke depan seiring berakhirnya musim panen raya." }, chartBase: 15500, factors: { bbm: { name: "Pertalite/Liter", value: "Rp 10.000" }, cuaca: { name: "Suhu Rata-rata", value: "29°C" }, inflasi: { name: "Inflasi (YoY)", unit: "Jawa Timur", value: "2.95%" }, stok: { name: "Stok Beras (Jatim)", value: "450k Ton", color: "text-green-600" } } },
-                minyak: { name: "Minyak Goreng Curah", overview: { lastPrice: 16200, change: 50, changePercent: 0.31, prediction: 16250 }, outlook: { week: -0.5, month: 2.1, threeMonth: 4.5, reason: "Kenaikan harga CPO global dan melemahnya nilai tukar Rupiah akan mendorong kenaikan harga." }, chartBase: 16000, factors: { bbm: { name: "Solar/Liter", value: "Rp 10.500" }, cuaca: { name: "Curah Hujan (Sawit)", value: "170 mm" }, inflasi: { name: "Kurs USD/IDR", unit: "Nilai Tukar", value: "Rp 16.150" }, stok: { name: "Stok CPO", value: "4.5 Juta Ton", color: "text-yellow-600" } } },
-                gula: { name: "Gula Pasir", overview: { lastPrice: 18100, change: 0, changePercent: 0, prediction: 18100 }, outlook: { week: 0.2, month: -1.5, threeMonth: 1.8, reason: "Stok gula yang cukup akan menahan kenaikan harga dalam jangka pendek." }, chartBase: 18000, factors: { bbm: { name: "Solar/Liter", value: "Rp 10.500" }, cuaca: { name: "Musim Giling Tebu", value: "Puncak" }, inflasi: { name: "Inflasi (YoY)", unit: "Jawa Timur", value: "2.95%" }, stok: { name: "Stok Gula (Jatim)", value: "210k Ton", color: "text-green-600" } } },
-                cabai: { name: "Cabai Rawit Merah", overview: { lastPrice: 45000, change: -2500, changePercent: -5.26, prediction: 44000 }, outlook: { week: -5.8, month: -12.3, threeMonth: 7.2, reason: "Memasuki musim panen raya cabai, harga diperkirakan akan turun signifikan." }, chartBase: 48000, factors: { bbm: { name: "Pertalite/Liter", value: "Rp 10.000" }, cuaca: { name: "Curah Hujan (Sentra)", value: "85 mm (Rendah)" }, inflasi: { name: "Inflasi (YoY)", unit: "Jawa Timur", value: "2.95%" }, stok: { name: "Status Panen", value: "Puncak Panen", color: "text-red-600" } } }
+                beras: { name: "Beras Premium", overview: { lastPrice: 15550, change: 50, changePercent: 0.32, prediction: 15600 }, outlook: { week: 1.2, month: 3.5, threeMonth: -0.8, reason: "Harga beras diperkirakan stabil naik dalam 1 bulan ke depan seiring berakhirnya musim panen raya." }, chartBase: 15500, volatility: 0.01, factors: { bbm: { name: "Pertalite/Liter", value: "Rp 10.000" }, cuaca: { name: "Suhu Rata-rata", value: "29°C" }, inflasi: { name: "Inflasi (YoY)", unit: "Jawa Timur", value: "2.95%" }, stok: { name: "Stok Beras (Jatim)", value: "450k Ton", color: "text-green-600" } } },
+                minyak: { name: "Minyak Goreng Curah", overview: { lastPrice: 16200, change: 50, changePercent: 0.31, prediction: 16250 }, outlook: { week: -0.5, month: 2.1, threeMonth: 4.5, reason: "Kenaikan harga CPO global dan melemahnya nilai tukar Rupiah akan mendorong kenaikan harga." }, chartBase: 16000, volatility: 0.02, factors: { bbm: { name: "Solar/Liter", value: "Rp 10.500" }, cuaca: { name: "Curah Hujan (Sawit)", value: "170 mm" }, inflasi: { name: "Kurs USD/IDR", unit: "Nilai Tukar", value: "Rp 16.150" }, stok: { name: "Stok CPO", value: "4.5 Juta Ton", color: "text-yellow-600" } } },
+                gula: { name: "Gula Pasir", overview: { lastPrice: 18100, change: 0, changePercent: 0, prediction: 18100 }, outlook: { week: 0.2, month: -1.5, threeMonth: 1.8, reason: "Stok gula yang cukup akan menahan kenaikan harga dalam jangka pendek." }, chartBase: 18000, volatility: 0.015, factors: { bbm: { name: "Solar/Liter", value: "Rp 10.500" }, cuaca: { name: "Musim Giling Tebu", value: "Puncak" }, inflasi: { name: "Inflasi (YoY)", unit: "Jawa Timur", value: "2.95%" }, stok: { name: "Stok Gula (Jatim)", value: "210k Ton", color: "text-green-600" } } },
+                cabai: { name: "Cabai Rawit Merah", overview: { lastPrice: 45000, change: -2500, changePercent: -5.26, prediction: 44000 }, outlook: { week: -5.8, month: -12.3, threeMonth: 7.2, reason: "Memasuki musim panen raya cabai, harga diperkirakan akan turun signifikan." }, chartBase: 48000, volatility: 0.06, factors: { bbm: { name: "Pertalite/Liter", value: "Rp 10.000" }, cuaca: { name: "Curah Hujan (Sentra)", value: "85 mm (Rendah)" }, inflasi: { name: "Inflasi (YoY)", unit: "Jawa Timur", value: "2.95%" }, stok: { name: "Status Panen", value: "Puncak Panen", color: "text-red-600" } } }
             },
             dki: { 
                 name: "DKI Jakarta", 
-                // --- PERBAIKAN DATA KONSISTENSI ---
-                beras: { name: "Beras Premium", overview: { lastPrice: 16100, change: 50, changePercent: 0.31, prediction: 16100 }, outlook: { week: 1.5, month: 4.0, threeMonth: 0.5, reason: "Ketergantungan pasokan dari daerah lain membuat harga di Jakarta lebih rentan naik." }, chartBase: 16000, factors: { bbm: { name: "Pertalite/Liter", value: "Rp 10.000" }, cuaca: { name: "Suhu Rata-rata", value: "30°C" }, inflasi: { name: "Inflasi (YoY)", unit: "DKI Jakarta", value: "2.70%" }, stok: { name: "Stok Beras (DKI)", value: "80k Ton", color: "text-yellow-600" } } }, 
-                minyak: { name: "Minyak Goreng Curah", overview: { lastPrice: 16800, change: 200, changePercent: 1.20, prediction: 17000 }, outlook: { week: 0.5, month: 2.5, threeMonth: 5.0, reason: "Biaya logistik yang tinggi menjadi faktor utama harga minyak yang lebih mahal." }, chartBase: 16700, factors: { bbm: { name: "Solar/Liter", value: "Rp 10.500" }, cuaca: { name: "Suhu Rata-rata", value: "30°C" }, inflasi: { name: "Kurs USD/IDR", unit: "Nilai Tukar", value: "Rp 16.150" }, stok: { name: "Stok Minyak (DKI)", value: "15k Ton", color: "text-green-600" } } }, 
-                gula: { name: "Gula Pasir", overview: { lastPrice: 18500, change: 100, changePercent: 0.54, prediction: 18600 }, outlook: { week: 0.5, month: -0.5, threeMonth: 2.0, reason: "Harga sangat dipengaruhi oleh kelancaran distribusi dari pusat grosir." }, chartBase: 18400, factors: { bbm: { name: "Solar/Liter", value: "Rp 10.500" }, cuaca: { name: "Suhu Rata-rata", value: "30°C" }, inflasi: { name: "Inflasi (YoY)", unit: "DKI Jakarta", value: "2.70%" }, stok: { name: "Stok Gula (DKI)", value: "25k Ton", color: "text-green-600" } } }, 
-                cabai: { name: "Cabai Rawit Merah", overview: { lastPrice: 52000, change: -1500, changePercent: -2.80, prediction: 51000 }, outlook: { week: -4.0, month: -10.0, threeMonth: 9.5, reason: "Meskipun panen raya, biaya transportasi tetap membuat harga cabai tinggi." }, chartBase: 53000, factors: { bbm: { name: "Pertalite/Liter", value: "Rp 10.000" }, cuaca: { name: "Suhu Rata-rata", value: "30°C" }, inflasi: { name: "Inflasi (YoY)", unit: "DKI Jakarta", value: "2.70%" }, stok: { name: "Pasokan Harian", value: "120 Ton", color: "text-green-600" } } }
+                beras: { name: "Beras Premium", overview: { lastPrice: 16100, change: 50, changePercent: 0.31, prediction: 16100 }, outlook: { week: 1.5, month: 4.0, threeMonth: 0.5, reason: "Ketergantungan pasokan dari daerah lain membuat harga di Jakarta lebih rentan naik." }, chartBase: 16000, volatility: 0.012, factors: { bbm: { name: "Pertalite/Liter", value: "Rp 10.000" }, cuaca: { name: "Suhu Rata-rata", value: "30°C" }, inflasi: { name: "Inflasi (YoY)", unit: "DKI Jakarta", value: "2.70%" }, stok: { name: "Stok Beras (DKI)", value: "80k Ton", color: "text-yellow-600" } } }, 
+                minyak: { name: "Minyak Goreng Curah", overview: { lastPrice: 16800, change: 200, changePercent: 1.20, prediction: 17000 }, outlook: { week: 0.5, month: 2.5, threeMonth: 5.0, reason: "Biaya logistik yang tinggi menjadi faktor utama harga minyak yang lebih mahal." }, chartBase: 16700, volatility: 0.025, factors: { bbm: { name: "Solar/Liter", value: "Rp 10.500" }, cuaca: { name: "Suhu Rata-rata", value: "30°C" }, inflasi: { name: "Kurs USD/IDR", unit: "Nilai Tukar", value: "Rp 16.150" }, stok: { name: "Stok Minyak (DKI)", value: "15k Ton", color: "text-green-600" } } }, 
+                gula: { name: "Gula Pasir", overview: { lastPrice: 18500, change: 100, changePercent: 0.54, prediction: 18600 }, outlook: { week: 0.5, month: -0.5, threeMonth: 2.0, reason: "Harga sangat dipengaruhi oleh kelancaran distribusi dari pusat grosir." }, chartBase: 18400, volatility: 0.018, factors: { bbm: { name: "Solar/Liter", value: "Rp 10.500" }, cuaca: { name: "Suhu Rata-rata", value: "30°C" }, inflasi: { name: "Inflasi (YoY)", unit: "DKI Jakarta", value: "2.70%" }, stok: { name: "Stok Gula (DKI)", value: "25k Ton", color: "text-green-600" } } }, 
+                cabai: { name: "Cabai Rawit Merah", overview: { lastPrice: 52000, change: -1500, changePercent: -2.80, prediction: 51000 }, outlook: { week: -4.0, month: -10.0, threeMonth: 9.5, reason: "Meskipun panen raya, biaya transportasi tetap membuat harga cabai tinggi." }, chartBase: 53000, volatility: 0.055, factors: { bbm: { name: "Pertalite/Liter", value: "Rp 10.000" }, cuaca: { name: "Suhu Rata-rata", value: "30°C" }, inflasi: { name: "Inflasi (YoY)", unit: "DKI Jakarta", value: "2.70%" }, stok: { name: "Pasokan Harian", value: "120 Ton", color: "text-green-600" } } }
             },
             jabar: { 
                 name: "Jawa Barat", 
-                // --- PERBAIKAN DATA KONSISTENSI ---
-                beras: { name: "Beras Premium", overview: { lastPrice: 15700, change: 50, changePercent: 0.32, prediction: 15700 }, outlook: { week: 1.1, month: 3.0, threeMonth: -0.2, reason: "Produksi lokal yang kuat membantu menjaga stabilitas harga beras." }, chartBase: 15600, factors: { bbm: { name: "Pertalite/Liter", value: "Rp 10.000" }, cuaca: { name: "Suhu Rata-rata", value: "27°C" }, inflasi: { name: "Inflasi (YoY)", unit: "Jawa Barat", value: "2.88%" }, stok: { name: "Stok Beras (Jabar)", value: "380k Ton", color: "text-green-600" } } }, 
-                minyak: { name: "Minyak Goreng Curah", overview: { lastPrice: 16400, change: 100, changePercent: 0.61, prediction: 16500 }, outlook: { week: -0.3, month: 2.0, threeMonth: 4.0, reason: "Harga mengikuti tren nasional dengan sedikit perbedaan karena distribusi." }, chartBase: 16300, factors: { bbm: { name: "Solar/Liter", value: "Rp 10.500" }, cuaca: { name: "Suhu Rata-rata", value: "27°C" }, inflasi: { name: "Kurs USD/IDR", unit: "Nilai Tukar", value: "Rp 16.150" }, stok: { name: "Stok CPO", value: "4.5 Juta Ton", color: "text-yellow-600" } } }, 
-                gula: { name: "Gula Pasir", overview: { lastPrice: 18200, change: 50, changePercent: 0.27, prediction: 18200 }, outlook: { week: 0.3, month: -1.2, threeMonth: 1.6, reason: "Pasokan dari pabrik gula lokal cukup untuk memenuhi permintaan daerah." }, chartBase: 18100, factors: { bbm: { name: "Solar/Liter", value: "Rp 10.500" }, cuaca: { name: "Musim Giling Tebu", value: "Aktif" }, inflasi: { name: "Inflasi (YoY)", unit: "Jawa Barat", value: "2.88%" }, stok: { name: "Stok Gula (Jabar)", value: "190k Ton", color: "text-green-600" } } }, 
-                cabai: { name: "Cabai Rawit Merah", overview: { lastPrice: 47000, change: -2200, changePercent: -4.47, prediction: 46000 }, outlook: { week: -5.5, month: -11.0, threeMonth: 7.8, reason: "Sebagai salah satu sentra produksi, harga cabai di Jawa Barat cenderung lebih rendah." }, chartBase: 49000, factors: { bbm: { name: "Pertalite/Liter", value: "Rp 10.000" }, cuaca: { name: "Curah Hujan (Sentra)", value: "95 mm (Rendah)" }, inflasi: { name: "Inflasi (YoY)", unit: "Jawa Barat", value: "2.88%" }, stok: { name: "Status Panen", value: "Panen Melimpah", color: "text-red-600" } } }
+                beras: { name: "Beras Premium", overview: { lastPrice: 15700, change: 50, changePercent: 0.32, prediction: 15700 }, outlook: { week: 1.1, month: 3.0, threeMonth: -0.2, reason: "Produksi lokal yang kuat membantu menjaga stabilitas harga beras." }, chartBase: 15600, volatility: 0.009, factors: { bbm: { name: "Pertalite/Liter", value: "Rp 10.000" }, cuaca: { name: "Suhu Rata-rata", value: "27°C" }, inflasi: { name: "Inflasi (YoY)", unit: "Jawa Barat", value: "2.88%" }, stok: { name: "Stok Beras (Jabar)", value: "380k Ton", color: "text-green-600" } } }, 
+                minyak: { name: "Minyak Goreng Curah", overview: { lastPrice: 16400, change: 100, changePercent: 0.61, prediction: 16500 }, outlook: { week: -0.3, month: 2.0, threeMonth: 4.0, reason: "Harga mengikuti tren nasional dengan sedikit perbedaan karena distribusi." }, chartBase: 16300, volatility: 0.02, factors: { bbm: { name: "Solar/Liter", value: "Rp 10.500" }, cuaca: { name: "Suhu Rata-rata", value: "27°C" }, inflasi: { name: "Kurs USD/IDR", unit: "Nilai Tukar", value: "Rp 16.150" }, stok: { name: "Stok CPO", value: "4.5 Juta Ton", color: "text-yellow-600" } } }, 
+                gula: { name: "Gula Pasir", overview: { lastPrice: 18200, change: 50, changePercent: 0.27, prediction: 18200 }, outlook: { week: 0.3, month: -1.2, threeMonth: 1.6, reason: "Pasokan dari pabrik gula lokal cukup untuk memenuhi permintaan daerah." }, chartBase: 18100, volatility: 0.015, factors: { bbm: { name: "Solar/Liter", value: "Rp 10.500" }, cuaca: { name: "Musim Giling Tebu", value: "Aktif" }, inflasi: { name: "Inflasi (YoY)", unit: "Jawa Barat", value: "2.88%" }, stok: { name: "Stok Gula (Jabar)", value: "190k Ton", color: "text-green-600" } } }, 
+                cabai: { name: "Cabai Rawit Merah", overview: { lastPrice: 47000, change: -2200, changePercent: -4.47, prediction: 46000 }, outlook: { week: -5.5, month: -11.0, threeMonth: 7.8, reason: "Sebagai salah satu sentra produksi, harga cabai di Jawa Barat cenderung lebih rendah." }, chartBase: 49000, volatility: 0.065, factors: { bbm: { name: "Pertalite/Liter", value: "Rp 10.000" }, cuaca: { name: "Curah Hujan (Sentra)", value: "95 mm (Rendah)" }, inflasi: { name: "Inflasi (YoY)", unit: "Jawa Barat", value: "2.88%" }, stok: { name: "Status Panen", value: "Panen Melimpah", color: "text-red-600" } } }
             }
         };
 
@@ -703,14 +703,10 @@
         let priceChart, bbmChart, weatherChart, inflationChart, harvestChart, correlationChart;
         let today = new Date();
         
-        // --- PERBAIKAN DI SINI ---
         document.addEventListener('DOMContentLoaded', () => {
-            // --- INITIALIZATION ---
             setupNavigation();
-            initializeDashboard(); // Jalankan inisialisasi dashboard DULU
+            initializeDashboard();
             
-            // --- EVENT LISTENERS ---
-            // Pasang semua event listener
             document.getElementById('commodity-select').addEventListener('change', updateDashboard);
             document.getElementById('region-select').addEventListener('change', updateDashboard);
             document.getElementById('currentDateInput').addEventListener('change', updateDashboard);
@@ -722,12 +718,9 @@
                 }
             });
             
-            // Panggil lucide.createIcons() SETELAH semuanya siap
             lucide.createIcons(); 
         });
-        // --- AKHIR PERBAIKAN ---
 
-        // --- PAGE NAVIGATION ---
         function setupNavigation() {
             const navLinks = document.querySelectorAll('.nav-link');
             const pages = document.querySelectorAll('.page');
@@ -745,56 +738,45 @@
                         nav.classList.toggle('active', nav.getAttribute('href') === `#${targetId}`);
                     });
 
-                    // Initialize charts on page load
                     if (targetId === 'correlation' && !correlationChart) {
                         initializeCorrelation();
                     }
                     if (targetId === 'factors' && !bbmChart) {
                         initializeFactors();
                     }
-                    // Re-render icons if needed
                     lucide.createIcons();
                 });
             });
         }
         
-        // --- UTILS ---
         function formatCurrency(value) {
             return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(value);
         }
         
-        // Simulasi data berdasarkan tanggal
         function getSimulatedData(baseCommodityData, selectedDateStr) {
-            const baseData = JSON.parse(JSON.stringify(baseCommodityData)); // Deep copy
-            const refDate = new Date(today.toISOString().split('T')[0]); // Tanggal referensi (hari ini)
-            const selectedDate = new Date(selectedDateStr + 'T00:00:00'); // Set ke awal hari
+            const baseData = JSON.parse(JSON.stringify(baseCommodityData)); 
+            const refDate = new Date(today.toISOString().split('T')[0]); 
+            const selectedDate = new Date(selectedDateStr + 'T00:00:00'); 
             const dateDiff = Math.round((selectedDate - refDate) / (1000 * 60 * 60 * 24));
 
             if (dateDiff === 0) {
-                return baseData; // Kembalikan data asli jika tanggalnya hari ini
+                return baseData; 
             }
 
-            // Simulasi perubahan data
-            const priceChange = dateDiff * (baseData.chartBase * 0.001); // Perubahan kecil per hari
+            const priceChange = dateDiff * (baseData.chartBase * 0.001); 
             const predictionChange = dateDiff * (baseData.chartBase * 0.001);
 
             baseData.overview.lastPrice = Math.max(10000, baseData.overview.lastPrice + priceChange + (Math.random() - 0.5) * 100);
             baseData.overview.prediction = Math.max(10000, baseData.overview.prediction + predictionChange + (Math.random() - 0.5) * 100);
-            
-            // Buat perubahan harian palsu
             baseData.overview.change = (Math.random() - 0.5) * (baseData.overview.lastPrice * 0.02);
             baseData.overview.changePercent = (baseData.overview.change / baseData.overview.lastPrice * 100).toFixed(2);
-            
-            // Simulasikan outlook
             baseData.outlook.week += dateDiff * 0.05;
             baseData.outlook.month += dateDiff * 0.1;
-
-
             return baseData;
         }
 
-        // Generate chart data based on selected date
-        function generateChartData(base, days, prediction, selectedDateStr) {
+        // PERUBAHAN: Menambahkan parameter 'volatility'
+        function generateChartData(base, days, prediction, selectedDateStr, volatility) {
             const data = [];
             const labels = [];
             let lastValue = base;
@@ -804,14 +786,13 @@
                 const date = new Date(selectedDate);
                 date.setDate(date.getDate() - i);
                 labels.push(date);
-                lastValue += (Math.random() - 0.5) * (base * 0.02); // Variasi data historis
-                data.push(Math.max(10000, lastValue)); // pastikan tidak negatif
+                // PERUBAHAN: Menggunakan 'volatility' untuk variasi data
+                lastValue += (Math.random() - 0.5) * (base * volatility); 
+                data.push(Math.max(10000, lastValue)); 
             }
-            // Selected date's price
             labels.push(selectedDate);
             data.push(prediction.lastPrice);
             
-            // Tomorrow's prediction
             const tomorrow = new Date(selectedDate);
             tomorrow.setDate(selectedDate.getDate() + 1);
             labels.push(tomorrow);
@@ -819,9 +800,7 @@
             return { labels, data };
         }
         
-        // --- DASHBOARD LOGIC ---
         function initializeDashboard() {
-            // Set tanggal hari ini ke kalender
             const dateInput = document.getElementById('currentDateInput');
             today = new Date();
             dateInput.value = today.toISOString().split('T')[0];
@@ -841,7 +820,7 @@
                     interaction: { intersect: false, mode: 'index' },
                 }
             });
-            updateDashboard(); // Panggil update pertama kali
+            updateDashboard(); 
         }
 
         function updateDashboard() {
@@ -852,8 +831,6 @@
             
             const regionData = MOCK_DATA[region];
             const baseCommodityData = regionData[commodityKey];
-            
-            // Dapatkan data yang disimulasikan berdasarkan tanggal
             const commodityData = getSimulatedData(baseCommodityData, selectedDate);
 
             // Update overview cards
@@ -873,11 +850,37 @@
             changeIconContainer.className = `p-3 rounded-full ${change >= 0 ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}`;
             changeIcon.setAttribute('data-lucide', change >= 0 ? 'trending-up' : 'trending-down');
             
-            document.getElementById('overview-prediction').querySelector('.text-2xl').textContent = formatCurrency(commodityData.overview.prediction);
+            // --- PERUBAHAN: LOGIKA KARTU PREDIKSI 1 BULAN ---
+            // Ini menggantikan kartu "Prediksi Besok"
+            const outlookMonth = commodityData.outlook.month;
+            const predEl = document.getElementById('overview-prediction');
+            const predValEl = predEl.querySelector('.text-2xl');
+            const predIconContainer = predEl.querySelector('.p-3');
+            const predIcon = predIconContainer.querySelector('i');
+            
+            // LOGIKA KONSISTEN: Naik = Merah (Alert), Turun = Hijau (Aman)
+            if (outlookMonth > 0.1) { // Harga NAIK
+                predValEl.textContent = `+${outlookMonth.toFixed(1)}%`;
+                predValEl.className = 'text-2xl font-bold text-red-600'; // Merah
+                predIconContainer.className = 'p-3 rounded-full bg-red-100 text-red-600'; // Merah
+                predIcon.setAttribute('data-lucide', 'trending-up');
+            } else if (outlookMonth < -0.1) { // Harga TURUN
+                predValEl.textContent = `${outlookMonth.toFixed(1)}%`;
+                predValEl.className = 'text-2xl font-bold text-green-600'; // Hijau
+                predIconContainer.className = 'p-3 rounded-full bg-green-100 text-green-600'; // Hijau
+                predIcon.setAttribute('data-lucide', 'trending-down');
+            } else { // STABIL
+                predValEl.textContent = `~0.0%`;
+                predValEl.className = 'text-2xl font-bold text-slate-600';
+                predIconContainer.className = 'p-3 rounded-full bg-slate-100 text-slate-600';
+                predIcon.setAttribute('data-lucide', 'minus');
+            }
+            // --- AKHIR PERUBAHAN KARTU PREDIKSI ---
 
             // Update chart
             document.getElementById('chart-title').textContent = `Grafik Harga dan Prediksi (${commodityData.name})`;
-            const chartRawData = generateChartData(commodityData.chartBase, parseInt(days), commodityData.overview, selectedDate);
+            // PERUBAHAN: Mengirim 'commodityData.volatility' ke fungsi
+            const chartRawData = generateChartData(commodityData.chartBase, parseInt(days), commodityData.overview, selectedDate, commodityData.volatility);
             
             priceChart.data.labels = chartRawData.labels;
             priceChart.data.datasets = [
@@ -903,12 +906,9 @@
             ];
             priceChart.update();
             
-            // Update outlook table
             updateOutlookTable(region, selectedDate);
-            // Update dashboard factors
             updateDashboardFactors(commodityData.factors);
-            // Update recommendations
-            updateRecommendations(commodityData);
+            updateRecommendations(commodityData); // Rekomendasi sudah konsisten dari V2
             
             lucide.createIcons();
         }
@@ -920,7 +920,6 @@
             
             Object.keys(regionData).filter(k => k !== 'name').forEach(commodityKey => {
                 const baseCommodity = regionData[commodityKey];
-                // Dapatkan data simulasi untuk tabel juga
                 const commodity = getSimulatedData(baseCommodity, selectedDate);
                 
                 const row = document.createElement('tr');
@@ -937,18 +936,15 @@
                     const val = parseFloat(value.toFixed(2));
                     const isUp = val > 0.05;
                     const isDown = val < -0.05;
-                    
                     let color = 'text-slate-500';
                     let icon = 'minus';
-                    
                     if (isUp) {
-                        color = 'text-green-600';
+                        color = 'text-green-600'; // Di tabel, outlook positif = hijau
                         icon = 'arrow-up-right';
                     } else if (isDown) {
-                        color = 'text-red-600';
+                        color = 'text-red-600'; // Di tabel, outlook negatif = merah
                         icon = 'arrow-down-right';
                     }
-
                     return `<div class="flex items-center ${color}"><i data-lucide="${icon}" class="w-4 h-4 mr-1"></i> ${val}%</div>`;
                 };
 
@@ -970,28 +966,20 @@
             lucide.createIcons();
         }
 
-        // --- NEW: Update Dashboard Factors ---
         function updateDashboardFactors(factors) {
-            // BBM
             document.getElementById('factor-bbm-unit').textContent = factors.bbm.name;
             document.getElementById('factor-bbm-value').textContent = factors.bbm.value;
-            // Cuaca
             document.getElementById('factor-cuaca-unit').textContent = factors.cuaca.name;
             document.getElementById('factor-cuaca-value').textContent = factors.cuaca.value;
-            // Inflasi / Kurs
             document.getElementById('factor-inflasi-name').textContent = factors.inflasi.name;
             document.getElementById('factor-inflasi-unit').textContent = factors.inflasi.unit;
             document.getElementById('factor-inflasi-value').textContent = factors.inflasi.value;
-            // Stok
             document.getElementById('factor-stok-unit').textContent = factors.stok.name;
             document.getElementById('factor-stok-value').textContent = factors.stok.value;
             document.getElementById('factor-stok-value').className = `font-bold text-lg ${factors.stok.color}`;
         }
 
-        // --- PERBAIKAN REKOMENDASI ---
-        // Logika diubah total sesuai permintaan:
-        // 1. Hanya 1 kartu yang muncul (Beli, Tahan, atau Stabil).
-        // 2. Logika HANYA berdasarkan 'outlook.month' (prediksi bulan depan).
+        // Logika Rekomendasi (Sudah diperbaiki di V2 dan konsisten)
         function updateRecommendations(commodityData) {
             const outlookMonth = commodityData.outlook.month;
             const commodityName = commodityData.name;
@@ -1007,16 +995,15 @@
             const holdTitle = document.getElementById('rec-hold-title');
             const holdDesc = document.getElementById('rec-hold-desc');
 
-            // Reset styles - sembunyikan keduanya dulu
-            buyCard.classList.add('opacity-50');
-            holdCard.classList.add('opacity-50');
+            // Sembunyikan keduanya dulu
+            buyCard.classList.add('hidden', 'opacity-50');
+            holdCard.classList.add('hidden', 'opacity-50');
 
-            // Logika Rekomendasi BARU (berdasarkan outlook bulan depan)
-            const threshold = 1.5; // Angka % untuk memicu rekomendasi
+            const threshold = 1.5; // Batas % untuk memicu rekomendasi
 
             if (outlookMonth > threshold) {
-                // REKOMENDASI: BELI (Harga akan NAIK)
-                buyCard.classList.remove('opacity-50');
+                // REKOMENDASI: BELI (Harga akan NAIK = Merah/Alert)
+                buyCard.classList.remove('hidden', 'opacity-50');
                 
                 buyIcon.className = 'p-3 bg-red-100 text-red-600 rounded-full mr-4';
                 buyTitle.className = 'text-xl font-bold text-red-600';
@@ -1024,8 +1011,8 @@
                 buyDesc.innerHTML = `Prediksi kami menunjukkan harga <strong>${commodityName}</strong> akan <strong>naik signifikan (~${outlookMonth.toFixed(1)}%)</strong> dalam satu bulan ke depan. Membeli sekarang dapat menjadi langkah antisipasi.`;
 
             } else if (outlookMonth < -threshold) {
-                // REKOMENDASI: TAHAN (Harga akan TURUN)
-                holdCard.classList.remove('opacity-50');
+                // REKOMENDASI: TAHAN (Harga akan TURUN = Hijau/Aman)
+                holdCard.classList.remove('hidden', 'opacity-50');
                 
                 holdIcon.className = 'p-3 bg-green-100 text-green-600 rounded-full mr-4';
                 holdTitle.className = 'text-xl font-bold text-green-600';
@@ -1033,9 +1020,8 @@
                 holdDesc.innerHTML = `Harga <strong>${commodityName}</strong> berpotensi <strong>turun (~${outlookMonth.toFixed(1)}%)</strong> dalam satu bulan ke depan. Sebaiknya tunda pembelian atau jual stok jika ada.`;
             
             } else {
-                // REKOMENDASI: STABIL
-                // Kita gunakan kartu 'hold' untuk menampilkan info stabil
-                holdCard.classList.remove('opacity-50');
+                // REKOMENDASI: STABIL (Biru/Netral)
+                holdCard.classList.remove('hidden', 'opacity-50');
                 
                 holdIcon.className = 'p-3 bg-blue-100 text-blue-600 rounded-full mr-4';
                 holdTitle.className = 'text-xl font-bold text-blue-600';
@@ -1044,10 +1030,7 @@
             }
             lucide.createIcons();
         }
-        // --- AKHIR PERBAIKAN REKOMENDASI ---
 
-
-        // --- CORRELATION LOGIC ---
         function initializeCorrelation() {
             const ctx = document.getElementById('correlationChart').getContext('2d');
             correlationChart = new Chart(ctx, {
@@ -1069,13 +1052,12 @@
             });
             updateCorrelationChart();
 
-            // Add listeners only once
             document.getElementById('corr-var-x').addEventListener('change', updateCorrelationChart);
             document.getElementById('corr-var-y').addEventListener('change', updateCorrelationChart);
         }
 
         function updateCorrelationChart() {
-            if (!correlationChart) return; // Jangan update jika belum diinisialisasi
+            if (!correlationChart) return; 
             const varX = document.getElementById('corr-var-x').value;
             const varY = document.getElementById('corr-var-y').value;
 
@@ -1095,13 +1077,11 @@
             correlationChart.update();
         }
 
-        // --- FACTORS LOGIC ---
         function initializeFactors() {
-            // NEW: Generate trend data
-            const bbmTrend = generateTrendData('up', 100, 10); // Data naik
-            const weatherTrend = generateTrendData('random', 150, 50); // Data acak
-            const inflationTrend = generateTrendData('stable', 70, 5); // Data stabil
-            const harvestTrend = generateTrendData('random', 80, 20); // Data acak
+            const bbmTrend = generateTrendData('up', 100, 10); 
+            const weatherTrend = generateTrendData('random', 150, 50); 
+            const inflationTrend = generateTrendData('stable', 70, 5); 
+            const harvestTrend = generateTrendData('random', 80, 20); 
 
             bbmChart = createFactorChart('bbmChart', '#fb923c', bbmTrend);
             weatherChart = createFactorChart('weatherChart', '#22d3ee', weatherTrend);
@@ -1109,26 +1089,25 @@
             harvestChart = createFactorChart('harvestChart', '#84cc16', harvestTrend);
         }
 
-        // NEW: Generate trend data for factor charts
         function generateTrendData(type = 'random', base = 50, variation = 10) {
             const data = [];
             let lastValue = base;
             for(let i=0; i < 12; i++) {
                 switch(type) {
                     case 'up':
-                        lastValue += (Math.random() * variation * 0.2) + (i * 0.1); // Cenderung naik
+                        lastValue += (Math.random() * variation * 0.2) + (i * 0.1); 
                         break;
                     case 'down':
-                         lastValue -= (Math.random() * variation * 0.2) + (i * 0.1); // Cenderung turun
+                         lastValue -= (Math.random() * variation * 0.2) + (i * 0.1); 
                         break;
                     case 'stable':
-                        lastValue += (Math.random() - 0.5) * variation * 0.5; // Fluktuasi kecil
+                        lastValue += (Math.random() - 0.5) * variation * 0.5; 
                         break;
                     case 'random':
                     default:
-                        lastValue = base + (Math.random() - 0.5) * variation; // Acak
+                        lastValue = base + (Math.random() - 0.5) * variation; 
                 }
-                data.push(Math.max(0, lastValue)); // Pastikan tidak negatif
+                data.push(Math.max(0, lastValue)); 
             }
             return data;
         }
