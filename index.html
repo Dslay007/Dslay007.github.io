@@ -739,33 +739,26 @@
 
         // Buat harga hari ini dan kemarin berdasarkan data historis
         const todayData = generateTimeSeriesData(1, basePrice, commodity.volatility, commodity.trend, seed);
-        const todayPriceRaw = todayData[0].y; // <-- Harga mentah
+        const todayPrice = todayData[0].y;
 
-        // Perlu seed kemarin untuk harga kemarin
-        const yesterdayData = generateTimeSeriesData(1, basePrice, commodity.volatility, commodity.trend, seed - 1);
-        const yesterdayPriceRaw = yesterdayData[0].y; // <-- Harga mentah
+        // Perlu seed kemarin untuk harga kemarin
+        const yesterdayData = generateTimeSeriesData(1, basePrice, commodity.volatility, commodity.trend, seed - 1);
+        const yesterdayPrice = yesterdayData[0].y;
 
-        // --- PERBAIKAN: HITUNG HARGA BULAT DULU ---
-        const todayPriceRounded = Math.round(todayPriceRaw / 50) * 50;
-        const yesterdayPriceRounded = Math.round(yesterdayPriceRaw / 50) * 50;
+        const change = todayPrice - yesterdayPrice;
+        const changePercent = (change / yesterdayPrice) * 100;
 
-        // --- HITUNG PERUBAHAN BERDASARKAN HARGA BULAT ---
-        const change = todayPriceRounded - yesterdayPriceRounded;
-        // Hindari pembagian dengan nol jika harga kemarin 0
-        const changePercent = (yesterdayPriceRounded === 0) ? 0 : (change / yesterdayPriceRounded) * 100;
+        // Prediksi dipengaruhi oleh outlook mingguan
+        const outlookBias = (commodity.outlook.week / 100) * (basePrice * 0.2); // Bias dari outlook
+        const randomJitter = (rand() - 0.5) * (basePrice * 0.02); // Jitter acak
+        const prediction = todayPrice + outlookBias + randomJitter;
 
-        // Prediksi dipengaruhi oleh outlook mingguan
-        const outlookBias = (commodity.outlook.week / 100) * (basePrice * 0.2); // Bias dari outlook
-        const randomJitter = (rand() - 0.5) * (basePrice * 0.002); // Jitter acak
-        // Prediksi bisa tetap pakai harga mentah (Raw) agar lebih akurat
-        const prediction = todayPriceRaw + outlookBias + randomJitter;
-
-       return {
-            lastPrice: todayPriceRounded,       // <-- Kirim harga bulat
-            change: change,                   // <-- Kirim perubahan bulat
-            changePercent: changePercent,     // <-- Kirim persen berdasarkan perubahan bulat
-            prediction: Math.round(prediction / 50) * 50 // <-- Kirim prediksi bulat
-        };
+       return {
+            lastPrice: Math.round(todayPrice / 50) * 50, // Round to nearest 50
+            change: change, // Keep original change value
+            changePercent: changePercent,
+            prediction: Math.round(prediction / 50) * 50
+        };
     };
 
     // --- PAGE ROUTING & LOGIN LOGIC ---
@@ -934,7 +927,7 @@
             };
 
             const updateOverview = (data) => {
-                const { lastPrice, change, changePercent, prediction } = data; // Original calculated values might still be needed
+                const { lastPrice, /* change, changePercent, */ prediction } = data; // Original calculated values might still be needed
 
                 document.querySelector('#overview-last-price p:last-child').textContent = formatCurrency(lastPrice);
 
@@ -969,25 +962,24 @@
                 const changeIconDiv = changeContainer.querySelector('.p-3');
                 const changeText = changeContainer.querySelector('p:last-child');
 
-               // ** Ambil Nilai Dinamis **
-                const manualChangeValue = change; 
-                const manualChangePercent = changePercent;
+                // ** Atur Nilai Manual Di Sini **
+                const manualChangeValue = 400; // Contoh: Turun 150 Rupiah
+                const manualChangePercent = 2.05; // Contoh: Turun 1.05%
 
                 // Tampilkan nilai manual
-                // Tampilkan HANYA PERSEN
-                changeText.innerHTML = `${manualChangePercent.toFixed(2)}%`;
+                changeText.innerHTML = `${formatCurrency(manualChangeValue)} <span class="text-base font-medium ml-2">(${manualChangePercent.toFixed(2)}%)</span>`;
 
                 // Atur warna dan ikon berdasarkan nilai manual
                 let iconName, divClasses, textClasses;
-                if (manualChangePercent > 0.01) { // <-- UBAH DI SINI
-                    iconName = 'trending-up';
-                    divClasses = 'p-3 bg-green-100 text-green-600 rounded-full';
-                    textClasses = 'text-2xl font-bold text-green-600 flex items-center';
-                } else if (manualChangePercent < -0.01) { // <-- UBAH DI SINI
-                    iconName = 'trending-down';
-                    divClasses = 'p-3 bg-red-100 text-red-600 rounded-full';
-                    textClasses = 'text-2xl font-bold text-red-600 flex items-center';
-                } else { // Jika 0
+                if (manualChangeValue > 0) { // Jika naik (manual)
+                    iconName = 'trending-up';
+                    divClasses = 'p-3 bg-green-100 text-green-600 rounded-full';
+                    textClasses = 'text-2xl font-bold text-green-600 flex items-center';
+                } else if (manualChangeValue < 0) { // Jika turun (manual)
+                    iconName = 'trending-down';
+                    divClasses = 'p-3 bg-red-100 text-red-600 rounded-full';
+                    textClasses = 'text-2xl font-bold text-red-600 flex items-center';
+                } else { // Jika 0 (manual atau dibulatkan)
                     iconName = 'minus';
                     divClasses = 'p-3 bg-slate-100 text-slate-600 rounded-full';
                     textClasses = 'text-2xl font-bold text-slate-800 flex items-center';
